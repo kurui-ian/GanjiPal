@@ -1,0 +1,32 @@
+name: pesatrack
+description: "Offline-First M-Pesa Expense Tracker for Android"
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  pesatrack_core:
+    path: ./packages/pesatrack_core
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+  intl: ^0.19.0
+  fl_chart: ^0.68.0
+  crypto: ^3.0.3
+  csv: ^6.0.0
+  share_plus: ^10.0.0
+  file_picker: ^8.0.7
+  flutter_local_notifications: ^17.2.1
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: ^1.24.9
+  lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
