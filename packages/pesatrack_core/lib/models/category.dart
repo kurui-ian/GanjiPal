@@ -132,6 +132,13 @@ class CategoryModel {
       isIncome: true,
     ),
     CategoryModel(
+      id: 'savings',
+      name: 'Savings & Investments',
+      iconName: 'savings',
+      colorValue: 0xFF00897B, // Emerald / Teal
+      isDefault: true,
+    ),
+    CategoryModel(
       id: 'other',
       name: 'Other / General',
       iconName: 'category',

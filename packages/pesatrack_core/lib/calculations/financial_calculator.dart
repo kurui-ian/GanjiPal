@@ -38,6 +38,14 @@ class FinancialSummary {
   double get cashWithdrawnInShillings => totalCashWithdrawnCents / 100.0;
   double get netCashFlowInShillings => netCashFlowCents / 100.0;
 
+  /// Total money debited / outgoing from wallet (expenses + fees + transfers + cash withdrawals)
+  int get totalOutgoingCents =>
+      totalPrincipalExpensesCents +
+      totalFeesCents +
+      totalTransfersSentCents +
+      totalCashWithdrawnCents;
+  double get totalOutgoingInShillings => totalOutgoingCents / 100.0;
+
   static const FinancialSummary zero = FinancialSummary(
     totalPrincipalExpensesCents: 0,
     totalFeesCents: 0,
@@ -166,11 +174,15 @@ class FinancialCalculator {
     );
   }
 
-  /// Calculates spending breakdown across expense categories.
+  /// Calculates spending breakdown across expense and outflow categories.
+  /// When [includeAllOutflows] is true (default for dashboard & money tracing),
+  /// includes expenses, transfers (Send Money, ZIIDI/Savings), and cash withdrawals.
+  /// When false, strictly checks for FinancialClassification.expense.
   static List<CategorySpending> calculateCategoryBreakdown(
     List<TransactionModel> transactions, {
     DateTime? startDate,
     DateTime? endDate,
+    bool includeAllOutflows = true,
   }) {
     final Map<String, int> categoryAmounts = {};
     final Map<String, String> categoryNames = {};
@@ -181,8 +193,14 @@ class FinancialCalculator {
       if (startDate != null && tx.timestamp.isBefore(startDate)) continue;
       if (endDate != null && tx.timestamp.isAfter(endDate)) continue;
 
-      // Only count expense classifications and fees
-      if (tx.classification == FinancialClassification.expense) {
+      // Outflows include expenses, transfers (P2P / ZIIDI savings), and cash withdrawals
+      final isOutflow = tx.classification == FinancialClassification.expense ||
+          (includeAllOutflows &&
+              (tx.classification == FinancialClassification.transfer ||
+                  tx.classification == FinancialClassification.withdrawal ||
+                  tx.categoryId == 'savings'));
+
+      if (isOutflow) {
         final catId = tx.categoryId;
         categoryAmounts[catId] = (categoryAmounts[catId] ?? 0) + tx.amountCents;
         categoryNames[catId] = tx.categoryName;

@@ -188,6 +188,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
 
             // Category Selector
             DropdownButtonFormField<String>(
+              key: ValueKey(_selectedCategoryId),
               initialValue: _selectedCategoryId,
               decoration: const InputDecoration(labelText: 'Category'),
               items: widget.appState.categories.map((c) {
@@ -204,8 +205,20 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               controller: _counterpartyController,
               decoration: const InputDecoration(
                 labelText: 'Merchant / Recipient Name',
-                hintText: 'e.g. Naivas Supermarket, John Doe',
+                hintText: 'e.g. Naivas Supermarket, ZIIDI, John Doe',
               ),
+              onChanged: (val) {
+                final lower = val.toLowerCase();
+                if (lower.contains('ziidi') ||
+                    lower.contains('m-shwari') ||
+                    lower.contains('mshwari') ||
+                    lower.contains('kcb') ||
+                    lower.contains('mmf')) {
+                  if (_selectedCategoryId != 'savings') {
+                    setState(() => _selectedCategoryId = 'savings');
+                  }
+                }
+              },
             ),
             const SizedBox(height: 16),
 

@@ -13,6 +13,8 @@ class TransactionClassifier {
   /// Suggests a category ID based on parsed SMS details and user rules.
   String suggestCategory(ParsedSmsResult parsed) {
     final counterparty = (parsed.counterpartyName ?? '').toLowerCase().trim();
+    final account = (parsed.accountReference ?? '').toLowerCase().trim();
+    final rawText = parsed.rawMessage.toLowerCase().trim();
 
     // 1. Check user-defined custom merchant mapping rules
     if (counterparty.isNotEmpty) {
@@ -23,7 +25,47 @@ class TransactionClassifier {
       }
     }
 
-    // 2. Type-specific deterministic mappings
+    // 2. Savings & Investments detection (e.g. ZIIDI, M-Shwari, KCB M-Pesa, MMF, Mali, Chama, Sacco)
+    if (_matchesAny(counterparty, [
+          'ziidi',
+          'm-shwari',
+          'mshwari',
+          'kcb mpesa',
+          'kcb m-pesa',
+          'mali',
+          'money market',
+          'mmf',
+          'sanlam',
+          'britam',
+          'cic',
+          'icealion',
+          'icea lion',
+          'chama',
+          'sacco',
+          'invest',
+          'saving',
+        ]) ||
+        _matchesAny(account, [
+          'ziidi',
+          'm-shwari',
+          'mshwari',
+          'kcb',
+          'mmf',
+          'invest',
+          'saving',
+        ]) ||
+        _matchesAny(rawText, [
+          'ziidi',
+          'm-shwari',
+          'kcb mpesa',
+          'kcb m-pesa',
+          'mali',
+          'money market fund',
+        ])) {
+      return 'savings';
+    }
+
+    // 3. Type-specific deterministic mappings
     switch (parsed.transactionType) {
       case TransactionType.airtime:
         return 'airtime_data';

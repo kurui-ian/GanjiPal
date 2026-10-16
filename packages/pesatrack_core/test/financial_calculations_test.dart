@@ -154,11 +154,13 @@ void main() {
     });
 
     test('Computes category breakdown accurately', () {
-      final breakdown =
-          FinancialCalculator.calculateCategoryBreakdown(sampleTransactions);
+      final breakdown = FinancialCalculator.calculateCategoryBreakdown(
+        sampleTransactions,
+        includeAllOutflows: false,
+      );
 
       expect(breakdown, isNotEmpty);
-      // Top category by spending should be utilities (3,200) followed by food_groceries (1,500) and fees (185)
+      // Top category by pure expense should be utilities (3,200) followed by food_groceries (1,500) and fees (185)
       expect(breakdown.first.categoryId, equals('utilities'));
       expect(breakdown.first.amountCents, equals(320000));
 
@@ -168,6 +170,21 @@ void main() {
 
       final fees = breakdown.firstWhere((c) => c.categoryId == 'fees');
       expect(fees.amountCents, equals(18500));
+    });
+
+    test('Computes category breakdown with all outflows including transfers and withdrawals', () {
+      final breakdown = FinancialCalculator.calculateCategoryBreakdown(
+        sampleTransactions,
+        includeAllOutflows: true,
+      );
+
+      expect(breakdown, isNotEmpty);
+      expect(breakdown.first.categoryId, equals('cash_withdrawals'));
+      expect(breakdown.first.amountCents, equals(1000000));
+
+      final transfers =
+          breakdown.firstWhere((c) => c.categoryId == 'transfers');
+      expect(transfers.amountCents, equals(500000));
     });
 
     test('Finds top merchants accurately', () {

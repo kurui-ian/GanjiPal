@@ -11,6 +11,18 @@ class CategoryRepository {
 
   Future<List<CategoryModel>> getAllCategories() async {
     final db = await _dbHelper.database;
+
+    // Ensure all default categories are present in SQLite
+    final batch = db.batch();
+    for (final cat in CategoryModel.defaults) {
+      batch.insert(
+        'categories',
+        cat.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.ignore,
+      );
+    }
+    await batch.commit(noResult: true);
+
     final List<Map<String, dynamic>> maps = await db.query(
       'categories',
       orderBy: 'is_default DESC, name ASC',

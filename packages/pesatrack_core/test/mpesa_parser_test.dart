@@ -224,5 +224,37 @@ void main() {
       expect(result.feeCents, equals(0));
       expect(result.balanceAfterCents, equals(285000));
     });
+
+    test('Parses ZIIDI investment SMS and classifies as savings category', () {
+      const ziidiSms =
+          'TK12BC34ZZ Confirmed. Ksh2.00 sent to ZIIDI on 16/10/26 at 8:05 PM. New M-PESA balance is Ksh150.00. Transaction cost, Ksh0.00.';
+      final result = parser.parse(ziidiSms);
+
+      expect(result.isMpesa, isTrue);
+      expect(result.mpesaReference, equals('TK12BC34ZZ'));
+      expect(result.amountCents, equals(200)); // KSh 2.00
+      expect(result.counterpartyName, equals('ZIIDI'));
+      expect(result.feeCents, equals(0));
+
+      final classifier = TransactionClassifier();
+      final categoryId = classifier.suggestCategory(result);
+      expect(categoryId, equals('savings'));
+      expect(classifier.getCategoryName(categoryId), equals('Savings & Investments'));
+    });
+
+    test('Parses transferred to ZIIDI SMS and classifies as savings', () {
+      const ziidiTransferSms =
+          'TK12BC34ZY Confirmed. Ksh500.00 transferred to ZIIDI on 16/10/26 at 8:10 PM. New M-PESA balance is Ksh650.00. Transaction cost, Ksh0.00.';
+      final result = parser.parse(ziidiTransferSms);
+
+      expect(result.isMpesa, isTrue);
+      expect(result.mpesaReference, equals('TK12BC34ZY'));
+      expect(result.amountCents, equals(50000));
+      expect(result.counterpartyName, equals('ZIIDI'));
+
+      final classifier = TransactionClassifier();
+      final categoryId = classifier.suggestCategory(result);
+      expect(categoryId, equals('savings'));
+    });
   });
 }

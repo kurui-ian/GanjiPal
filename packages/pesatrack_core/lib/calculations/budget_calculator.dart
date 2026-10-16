@@ -87,8 +87,13 @@ class BudgetCalculator {
         continue;
       }
 
-      // Only count expense transactions and their fees
-      if (tx.classification == FinancialClassification.expense) {
+      // Count all outflow transactions and their fees
+      final isOutflow = tx.classification == FinancialClassification.expense ||
+          tx.classification == FinancialClassification.transfer ||
+          tx.classification == FinancialClassification.withdrawal ||
+          tx.categoryId == 'savings';
+
+      if (isOutflow) {
         totalSpent += tx.amountCents + tx.feeCents;
       }
     }

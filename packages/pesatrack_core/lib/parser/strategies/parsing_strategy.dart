@@ -12,7 +12,8 @@ abstract class ParsingStrategy {
 class SendMoneyStrategy implements ParsingStrategy {
   @override
   bool canParse(String message) {
-    return RegExp(r'\bsent to\b', caseSensitive: false).hasMatch(message) &&
+    return RegExp(r'\b(?:sent|transferred)\s+to\b', caseSensitive: false)
+            .hasMatch(message) &&
         !RegExp(r'\bairtime\b', caseSensitive: false).hasMatch(message);
   }
 
@@ -24,9 +25,9 @@ class SendMoneyStrategy implements ParsingStrategy {
     final balanceAfterCents =
         MpesaParserUtils.extractBalanceAfterCents(message);
 
-    // Extract amount before "sent to"
+    // Extract amount before "sent to" or "transferred to"
     final amountMatch = RegExp(
-      r'(?:Ksh|KES)\.?\s*([\d,]+(?:\.\d{1,2})?)\s+sent to',
+      r'(?:Ksh|KES)\.?\s*([\d,]+(?:\.\d{1,2})?)\s+(?:sent|transferred)\s+to',
       caseSensitive: false,
     ).firstMatch(message);
 
@@ -39,12 +40,12 @@ class SendMoneyStrategy implements ParsingStrategy {
     }
 
     // Extract recipient name and phone number
-    // E.g. "sent to JANE DOE 0712345678 on" or "sent to JANE DOE on"
+    // E.g. "sent to JANE DOE 0712345678 on" or "transferred to ZIIDI on"
     String? recipientName;
     String? recipientPhone;
 
     final recipientMatch = RegExp(
-      r'sent to\s+([A-Za-z0-9\s\.\-]+?)\s+(?:(\+?254\d{9}|0[17]\d{8})\s+)?on\s+\d',
+      r'(?:sent|transferred)\s+to\s+([A-Za-z0-9\s\.\-]+?)\s+(?:(\+?254\d{9}|0[17]\d{8})\s+)?on\s+\d',
       caseSensitive: false,
     ).firstMatch(message);
 
@@ -55,7 +56,7 @@ class SendMoneyStrategy implements ParsingStrategy {
     } else {
       // Fallback pattern
       final fallbackMatch = RegExp(
-        r'sent to\s+(.+?)\s+on\s+\d',
+        r'(?:sent|transferred)\s+to\s+(.+?)\s+on\s+\d',
         caseSensitive: false,
       ).firstMatch(message);
       if (fallbackMatch != null) {

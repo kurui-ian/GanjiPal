@@ -30,8 +30,16 @@ class _SpendingDonutChartState extends State<SpendingDonutChart> {
     final isDark = theme.brightness == Brightness.dark;
     final currencyFormat = NumberFormat('#,##0', 'en_US');
 
-    final hasSpending =
-        widget.totalSpentInShillings > 0 && widget.breakdown.isNotEmpty;
+    final totalFromBreakdown = widget.breakdown.fold<double>(
+      0,
+      (sum, item) => sum + item.amountInShillings,
+    );
+    final displayTotal = widget.totalSpentInShillings > 0
+        ? widget.totalSpentInShillings
+        : totalFromBreakdown;
+
+    final hasSpending = (displayTotal > 0 || totalFromBreakdown > 0) &&
+        widget.breakdown.isNotEmpty;
 
     return Card(
       child: Padding(
@@ -123,7 +131,7 @@ class _SpendingDonutChartState extends State<SpendingDonutChart> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'KSh ${currencyFormat.format(widget.totalSpentInShillings)}',
+                            'KSh ${currencyFormat.format(displayTotal)}',
                             style: theme.textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 13,

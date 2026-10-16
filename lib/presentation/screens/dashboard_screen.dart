@@ -452,7 +452,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '-KSh ${currencyFormat.format(summary.grossSpendingInShillings)}',
+                                      '-KSh ${currencyFormat.format(summary.totalOutgoingInShillings)}',
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
@@ -644,7 +644,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Spending Overview Donut Chart
                   SpendingDonutChart(
                     breakdown: periodBreakdown,
-                    totalSpentInShillings: summary.netSpendingInShillings,
+                    totalSpentInShillings: periodBreakdown.fold<double>(0, (sum, item) => sum + item.amountInShillings),
                   ),
                   const SizedBox(height: 20),
 
