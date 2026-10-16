@@ -70,27 +70,27 @@ class _MainNavigationScaffoldState extends State<MainNavigationScaffold> {
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            selectedIcon: Icon(Icons.home_rounded),
             label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
             label: 'Transactions',
           ),
           NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
+            icon: Icon(Icons.pie_chart_outline_rounded),
+            selectedIcon: Icon(Icons.pie_chart_rounded),
             label: 'Analytics',
           ),
           NavigationDestination(
             icon: Icon(Icons.savings_outlined),
-            selectedIcon: Icon(Icons.savings),
+            selectedIcon: Icon(Icons.savings_rounded),
             label: 'Budgets',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
+            selectedIcon: Icon(Icons.settings_rounded),
             label: 'Settings',
           ),
         ],
