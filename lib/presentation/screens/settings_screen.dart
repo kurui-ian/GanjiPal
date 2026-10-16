@@ -28,39 +28,30 @@ class SettingsScreen extends StatelessWidget {
               // Appearance Section
               _buildSectionHeader(context, 'Appearance'),
               Card(
-                child: Column(
-                  children: [
-                    RadioListTile<ThemeMode>(
-                      title: const Text('System Default'),
-                      subtitle: const Text('Follow Android device appearance'),
-                      value: ThemeMode.system,
-                      groupValue: appState.themeMode,
-                      activeColor: AppColors.primary,
-                      onChanged: (mode) {
-                        if (mode != null) appState.setThemeMode(mode);
-                      },
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<ThemeMode>(
-                      title: const Text('Light Theme'),
-                      value: ThemeMode.light,
-                      groupValue: appState.themeMode,
-                      activeColor: AppColors.primary,
-                      onChanged: (mode) {
-                        if (mode != null) appState.setThemeMode(mode);
-                      },
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<ThemeMode>(
-                      title: const Text('Dark Theme'),
-                      value: ThemeMode.dark,
-                      groupValue: appState.themeMode,
-                      activeColor: AppColors.primary,
-                      onChanged: (mode) {
-                        if (mode != null) appState.setThemeMode(mode);
-                      },
-                    ),
-                  ],
+                child: RadioGroup<ThemeMode>(
+                  groupValue: appState.themeMode,
+                  onChanged: (mode) {
+                    if (mode != null) appState.setThemeMode(mode);
+                  },
+                  child: const Column(
+                    children: [
+                      RadioListTile<ThemeMode>(
+                        title: Text('System Default'),
+                        subtitle: Text('Follow Android device appearance'),
+                        value: ThemeMode.system,
+                      ),
+                      Divider(height: 1),
+                      RadioListTile<ThemeMode>(
+                        title: Text('Light Theme'),
+                        value: ThemeMode.light,
+                      ),
+                      Divider(height: 1),
+                      RadioListTile<ThemeMode>(
+                        title: Text('Dark Theme'),
+                        value: ThemeMode.dark,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
