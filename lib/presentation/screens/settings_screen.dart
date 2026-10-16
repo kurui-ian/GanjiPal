@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/sample_data_seeder.dart';
 import '../providers/app_state.dart';
+import '../widgets/profile_edit_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   final AppState appState;
@@ -26,6 +27,55 @@ class SettingsScreen extends StatelessWidget {
               vertical: 12.0,
             ),
             children: [
+              // Profile Section
+              _buildSectionHeader(context, 'Personal Profile'),
+              Card(
+                child: ListTile(
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: ProfileAvatarHelper.getConfig(
+                          appState.avatarIndex,
+                        ).gradient,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        appState.userName.isNotEmpty
+                            ? appState.userName[0].toUpperCase()
+                            : 'K',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    appState.userName,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: const Text('Tap to change nickname or avatar'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) =>
+                          ProfileEditBottomSheet(appState: appState),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+
               // Appearance Section
               _buildSectionHeader(context, 'Appearance'),
               Card(
