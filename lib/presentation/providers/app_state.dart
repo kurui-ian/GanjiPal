@@ -23,6 +23,13 @@ class AppState extends ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.system;
   ThemeMode get themeMode => _themeMode;
 
+  // User Profile State
+  String _userName = 'Kurui';
+  String get userName => _userName;
+
+  int _avatarIndex = 0;
+  int get avatarIndex => _avatarIndex;
+
   // Search & Filter State
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
@@ -71,12 +78,35 @@ class AppState extends ChangeNotifier {
       _budgets = await _budgetRepo.getAllBudgets();
       _allTransactions = await _txRepo.getAllTransactions();
 
+      // Load profile preferences
+      final savedName = await DatabaseHelper.instance.getPreference('user_name');
+      if (savedName != null && savedName.trim().isNotEmpty) {
+        _userName = savedName.trim();
+      }
+      final savedAvatar =
+          await DatabaseHelper.instance.getPreference('avatar_index');
+      if (savedAvatar != null) {
+        _avatarIndex = int.tryParse(savedAvatar) ?? 0;
+      }
+
       // Check for any SMS received while app was closed
       await _smsService.processPendingBackgroundMessages();
       _allTransactions = await _txRepo.getAllTransactions();
     } catch (_) {}
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> setUserName(String name) async {
+    _userName = name.trim().isEmpty ? 'Kurui' : name.trim();
+    await DatabaseHelper.instance.setPreference('user_name', _userName);
+    notifyListeners();
+  }
+
+  Future<void> setAvatarIndex(int index) async {
+    _avatarIndex = index;
+    await DatabaseHelper.instance.setPreference('avatar_index', index.toString());
     notifyListeners();
   }
 
