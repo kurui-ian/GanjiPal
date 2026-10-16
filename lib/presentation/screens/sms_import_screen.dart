@@ -178,12 +178,17 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'SMS Access Permission',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'SMS Access Permission',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -359,7 +364,10 @@ class _SmsImportScreenState extends State<SmsImportScreen>
             Expanded(
               child: OutlinedButton(
                 onPressed: _previewPastedText,
-                child: const Text('Preview Parse'),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Preview Parse'),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -371,7 +379,10 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
                 ),
-                child: const Text('Commit to Database'),
+                child: const FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text('Commit to Database'),
+                ),
               ),
             ),
           ],

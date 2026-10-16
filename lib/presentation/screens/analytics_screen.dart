@@ -25,6 +25,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       builder: (context, _) {
         final state = widget.appState;
         final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
         final currencyFormat = NumberFormat('#,##0', 'en_US');
 
         if (state.allTransactions.isEmpty) {
@@ -65,15 +66,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               vertical: 8.0,
             ),
             children: [
-              // Period Selector
-              Row(
-                children: [
-                  _buildRangeChip(7, 'Last 7 Days'),
-                  const SizedBox(width: 8),
-                  _buildRangeChip(30, 'Last 30 Days'),
-                  const SizedBox(width: 8),
-                  _buildRangeChip(90, 'Last 90 Days'),
-                ],
+              // Period Selector Segmented Tabs (Zero Overflow)
+              Container(
+                decoration: BoxDecoration(
+                  color: (isDark ? Colors.white : Colors.black)
+                      .withValues(alpha: 0.04),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.all(4),
+                child: Row(
+                  children: [
+                    _buildRangeSegment(7, 'Last 7 Days', isDark),
+                    _buildRangeSegment(30, 'Last 30 Days', isDark),
+                    _buildRangeSegment(90, 'Last 90 Days', isDark),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -92,20 +99,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       const SizedBox(height: 12),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           _buildMetric(
                             context,
-                            'Gross Spending',
-                            'KSh ${currencyFormat.format(summary.grossSpendingInShillings)}',
+                            'Total Outflows',
+                            'KSh ${currencyFormat.format(summary.totalOutgoingInShillings)}',
                             AppColors.expense,
                           ),
+                          const SizedBox(width: 8),
                           _buildMetric(
                             context,
                             'Income Received',
                             'KSh ${currencyFormat.format(summary.incomeInShillings)}',
                             AppColors.income,
                           ),
+                          const SizedBox(width: 8),
                           _buildMetric(
                             context,
                             'Tariff Fees',
@@ -189,13 +197,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(
-                                      cat.categoryName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
+                                    Expanded(
+                                      child: Text(
+                                        cat.categoryName,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 13,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                    const SizedBox(width: 8),
                                     Text(
                                       'KSh ${currencyFormat.format(cat.amountInShillings)} ($percent%)',
                                       style: const TextStyle(
@@ -282,22 +295,50 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Widget _buildRangeChip(int days, String label) {
+  Widget _buildRangeSegment(int days, String label, bool isDark) {
     final isSelected = _rangeDays == days;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
           setState(() {
             _rangeDays = days;
           });
-        }
-      },
-      selectedColor: AppColors.primary.withValues(alpha: 0.15),
-      labelStyle: TextStyle(
-        color: isSelected ? AppColors.primary : null,
-        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark ? AppColors.darkSurface : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? (isDark ? Colors.white : AppColors.primary)
+                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -308,24 +349,33 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     String amount,
     Color color,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.bodySmall
-              ?.copyWith(color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          amount,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w800,
-            fontSize: 15,
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.grey[600],
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              amount,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
