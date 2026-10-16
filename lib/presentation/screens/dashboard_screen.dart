@@ -26,7 +26,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedPeriodIndex = 2; // Default: This Month (0: Today, 1: Week, 2: Month)
+  int _selectedPeriodIndex = 0; // Default: Today (0: Today, 1: This Week, 2: This Month)
   bool _isBalanceHidden = false;
 
   String _getGreeting() {
