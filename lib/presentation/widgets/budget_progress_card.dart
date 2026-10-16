@@ -33,59 +33,101 @@ class BudgetProgressCard extends StatelessWidget {
         status.budget.categoryName ??
         '${status.budget.period.displayName} Spending Limit';
 
+    final remainingInShillings =
+        status.limitInShillings - status.spentInShillings;
+
     return Card(
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(18.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Text(
-                      budgetName,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: progressColor.withValues(
+                        alpha: isDark ? 0.2 : 0.1,
                       ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      status.budget.categoryId != null
+                          ? Icons.category_rounded
+                          : Icons.account_balance_wallet_rounded,
+                      color: progressColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          budgetName,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          isOver
+                              ? 'Exceeded by KSh ${currencyFormat.format(-remainingInShillings)}'
+                              : 'KSh ${currencyFormat.format(remainingInShillings)} remaining',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: isOver
+                                ? AppColors.expense
+                                : (isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600]),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
+                      horizontal: 10,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
                       color: progressColor.withValues(
                         alpha: isDark ? 0.2 : 0.1,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      isOver
-                          ? 'Over Budget'
-                          : isWarn
-                          ? 'Near Limit (${(status.percentageUsed * 100).toInt()}%)'
-                          : '${(status.percentageUsed * 100).toInt()}% Used',
+                      '${(status.percentageUsed * 100).toInt()}%',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
                         color: progressColor,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: percent,
-                  minHeight: 10,
-                  backgroundColor: isDark ? Colors.grey[800] : Colors.grey[200],
+                  minHeight: 8,
+                  backgroundColor:
+                      (isDark ? Colors.white : Colors.black).withValues(
+                    alpha: 0.08,
+                  ),
                   valueColor: AlwaysStoppedAnimation<Color>(progressColor),
                 ),
               ),
