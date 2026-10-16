@@ -204,6 +204,60 @@ class AppState extends ChangeNotifier {
     );
   }
 
+  /// Category breakdown dynamically evaluated for period index (0: Today, 1: Week, 2: Month)
+  List<CategorySpending> categoryBreakdownForPeriod(int periodIndex) {
+    final now = DateTime.now();
+    DateTime start;
+    DateTime end;
+
+    if (periodIndex == 0) {
+      start = DateTime(now.year, now.month, now.day);
+      end = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+    } else if (periodIndex == 1) {
+      final bounds = BudgetCalculator.getPeriodBounds(BudgetPeriod.weekly, now);
+      start = bounds.start;
+      end = bounds.end;
+    } else {
+      final bounds = BudgetCalculator.getPeriodBounds(BudgetPeriod.monthly, now);
+      start = bounds.start;
+      end = bounds.end;
+    }
+
+    return FinancialCalculator.calculateCategoryBreakdown(
+      _allTransactions,
+      startDate: start,
+      endDate: end,
+    );
+  }
+
+  /// Most recent transaction with an explicit M-Pesa account balance recorded.
+  TransactionModel? get latestMpesaBalanceTransaction {
+    for (final tx in _allTransactions) {
+      if (tx.balanceAfterCents != null) {
+        return tx;
+      }
+    }
+    return null;
+  }
+
+  /// Estimated current wallet balance (explicit M-Pesa balance, or calculated net cash flow)
+  double get currentEstimatedBalance {
+    final latest = latestMpesaBalanceTransaction;
+    if (latest != null && latest.balanceAfterCents != null) {
+      return latest.balanceAfterCents! / 100.0;
+    }
+    int total = 0;
+    for (final tx in _allTransactions) {
+      if (tx.classification == FinancialClassification.income ||
+          tx.classification == FinancialClassification.adjustment) {
+        total += tx.amountCents;
+      } else {
+        total -= tx.totalOutgoingCents;
+      }
+    }
+    return total / 100.0;
+  }
+
   /// Top merchants for the active month.
   List<MerchantSpending> get topMerchants {
     final bounds = BudgetCalculator.getPeriodBounds(
