@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/sample_data_seeder.dart';
 import '../providers/app_state.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -96,6 +97,19 @@ class SettingsScreen extends StatelessWidget {
                       subtitle: const Text('Import verified JSON backup file'),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () => _handleRestoreBackup(context),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.data_exploration_outlined,
+                        color: AppColors.primary,
+                      ),
+                      title: const Text('Seed Sample Transactions'),
+                      subtitle: const Text(
+                        'Populate 10 realistic M-Pesa transactions for demo',
+                      ),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () => _handleSeedSampleData(context),
                     ),
                   ],
                 ),
@@ -284,4 +298,57 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _handleSeedSampleData(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Seed Sample Transactions?'),
+        content: const Text(
+          'This will populate your database with 10 realistic Kenyan M-Pesa transactions '
+          '(income, rent, groceries, electricity, airtime, transfers, etc.) '
+          'to demonstrate charts, budget analytics, and transaction filtering.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Seed Data'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      final count = await SampleDataSeeder.seed();
+      await appState.loadInitialData();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              count > 0
+                  ? 'Successfully added $count sample transactions.'
+                  : 'Sample transactions are already present in the database.',
+            ),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to seed sample data: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 }
+
