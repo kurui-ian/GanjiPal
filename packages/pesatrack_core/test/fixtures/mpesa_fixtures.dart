@@ -55,4 +55,16 @@ class MpesaFixtures {
   /// Malformed confirmation message (corrupted text)
   static const String malformed =
       'QA12BC34DX Confirmed. Some random truncated text with no amount or date.';
+
+  /// Pochi la Biashara send money format
+  static const String pochiLaBiashara =
+      'QA12BC34DP Confirmed. Ksh450.00 sent to MAMA MBOGA GROCERIES 0723456789 on 16/10/26 at 1:15 PM. New M-PESA balance is Ksh4,550.00. Transaction cost, Ksh0.00.';
+
+  /// Send money with no mobile number (name only)
+  static const String sendMoneyNoPhone =
+      'QA12BC34DQ Confirmed. Ksh1,200.00 sent to KENNETH OCHIENG on 16/10/26 at 3:45 PM. New M-PESA balance is Ksh3,350.00. Transaction cost, Ksh12.00.';
+
+  /// Zero fee PayBill utility
+  static const String zeroFeePaybill =
+      'QA12BC34DR Confirmed. Ksh500.00 paid to NAIROBI WATER. for account NW-90210 on 16/10/26 at 5:00 PM. New M-PESA balance is Ksh2,850.00. Transaction cost, Ksh0.00.';
 }

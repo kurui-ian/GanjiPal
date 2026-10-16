@@ -189,5 +189,40 @@ void main() {
       expect(result.amountCents, equals(0));
       expect(result.failureReason, contains('Empty'));
     });
+
+    test('Parses Pochi la Biashara transactions correctly with zero fee', () {
+      final result = parser.parse(MpesaFixtures.pochiLaBiashara);
+
+      expect(result.isMpesa, isTrue);
+      expect(result.mpesaReference, equals('QA12BC34DP'));
+      expect(result.amountCents, equals(45000));
+      expect(result.feeCents, equals(0));
+      expect(result.counterpartyName, equals('MAMA MBOGA GROCERIES'));
+      expect(result.counterpartyPhone, equals('0723456789'));
+      expect(result.balanceAfterCents, equals(455000));
+    });
+
+    test('Parses Send Money with recipient name only (no phone number)', () {
+      final result = parser.parse(MpesaFixtures.sendMoneyNoPhone);
+
+      expect(result.isMpesa, isTrue);
+      expect(result.mpesaReference, equals('QA12BC34DQ'));
+      expect(result.amountCents, equals(120000));
+      expect(result.counterpartyName, equals('KENNETH OCHIENG'));
+      expect(result.feeCents, equals(1200));
+      expect(result.balanceAfterCents, equals(335000));
+    });
+
+    test('Parses zero fee PayBill with alphanumeric account reference', () {
+      final result = parser.parse(MpesaFixtures.zeroFeePaybill);
+
+      expect(result.isMpesa, isTrue);
+      expect(result.mpesaReference, equals('QA12BC34DR'));
+      expect(result.amountCents, equals(50000));
+      expect(result.counterpartyName, equals('NAIROBI WATER'));
+      expect(result.accountReference, equals('NW-90210'));
+      expect(result.feeCents, equals(0));
+      expect(result.balanceAfterCents, equals(285000));
+    });
   });
 }
