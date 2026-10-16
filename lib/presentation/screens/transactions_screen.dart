@@ -30,14 +30,11 @@ class TransactionsScreen extends StatelessWidget {
         final isDark = theme.brightness == Brightness.dark;
         final currencyFormat = NumberFormat('#,##0.00', 'en_US');
 
-        // Find the most recent transaction that recorded an M-Pesa balance
-        TransactionModel? latestWithBalance;
-        for (final tx in appState.allTransactions) {
-          if (tx.balanceAfterCents != null) {
-            latestWithBalance = tx;
-            break;
-          }
-        }
+        // Most recent transaction with an explicit balance
+        final latestWithBalance = appState.latestMpesaBalanceTransaction;
+
+        // Group filtered transactions by date
+        final groupedTxs = _groupTransactionsByDate(filtered);
 
         return Scaffold(
           appBar: AppBar(
@@ -46,22 +43,39 @@ class TransactionsScreen extends StatelessWidget {
               IconButton(
                 icon: Badge(
                   isLabelVisible: hasActiveFilters,
-                  child: const Icon(Icons.filter_list_rounded),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: (isDark ? Colors.white : Colors.black)
+                          .withValues(alpha: 0.05),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.tune_rounded, size: 20),
+                  ),
                 ),
                 tooltip: 'Filter Transactions',
                 onPressed: () => _showFilterBottomSheet(context),
               ),
+              const SizedBox(width: 8),
             ],
           ),
           body: Column(
             children: [
-              // Search Field
+              // Search Input Field
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search merchant, phone, reference...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[500] : Colors.grey[400],
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
                     suffixIcon: appState.searchQuery.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear, size: 18),
@@ -77,28 +91,79 @@ class TransactionsScreen extends StatelessWidget {
                 ),
               ),
 
-              // Current Balance Banner
+              // Segmented Filter Pills: All | Expense | Income | Transfers
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: (isDark ? Colors.white : Colors.black)
+                        .withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  child: Row(
+                    children: [
+                      _buildQuickPill(
+                        context,
+                        label: 'All',
+                        isSelected: appState.filterClassification == null,
+                        onTap: () => appState.setFilterClassification(null),
+                      ),
+                      _buildQuickPill(
+                        context,
+                        label: 'Expense',
+                        isSelected: appState.filterClassification ==
+                            FinancialClassification.expense,
+                        onTap: () => appState.setFilterClassification(
+                          FinancialClassification.expense,
+                        ),
+                      ),
+                      _buildQuickPill(
+                        context,
+                        label: 'Income',
+                        isSelected: appState.filterClassification ==
+                            FinancialClassification.income,
+                        onTap: () => appState.setFilterClassification(
+                          FinancialClassification.income,
+                        ),
+                      ),
+                      _buildQuickPill(
+                        context,
+                        label: 'Transfers',
+                        isSelected: appState.filterClassification ==
+                            FinancialClassification.transfer,
+                        onTap: () => appState.setFilterClassification(
+                          FinancialClassification.transfer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Current Balance Ledger Banner
               if (latestWithBalance != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14.0,
-                      vertical: 10.0,
+                      horizontal: 16.0,
+                      vertical: 12.0,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(
                         alpha: isDark ? 0.15 : 0.08,
                       ),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.25),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                       ),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(
                               alpha: isDark ? 0.25 : 0.15,
@@ -111,7 +176,7 @@ class TransactionsScreen extends StatelessWidget {
                             color: AppColors.primary,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -150,27 +215,27 @@ class TransactionsScreen extends StatelessWidget {
                   ),
                 ),
 
-              // Filter Chips
+              // Active Filters Notification Chip
               if (hasActiveFilters)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Row(
                     children: [
                       ActionChip(
-                        avatar: const Icon(Icons.close, size: 16),
-                        label: const Text('Clear Filters'),
+                        avatar: const Icon(Icons.close_rounded, size: 16),
+                        label: const Text('Reset Filters'),
                         onPressed: () => appState.clearFilters(),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${filtered.length} results',
+                        '${filtered.length} matching transactions',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
                 ),
 
-              // Transaction List
+              // Date-Grouped Transaction List
               Expanded(
                 child: filtered.isEmpty
                     ? EmptyStateView(
@@ -196,26 +261,79 @@ class TransactionsScreen extends StatelessWidget {
                                 );
                               },
                       )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, __) =>
-                            const Divider(height: 1, indent: 70),
-                        itemBuilder: (context, index) {
-                          final tx = filtered[index];
-                          return TransactionTile(
-                            transaction: tx,
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (_) => TransactionDetailModal(
-                                  transaction: tx,
-                                  appState: appState,
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+                        itemCount: groupedTxs.length,
+                        itemBuilder: (context, groupIndex) {
+                          final dateHeader =
+                              groupedTxs.keys.elementAt(groupIndex);
+                          final txList = groupedTxs[dateHeader]!;
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10.0,
+                                  horizontal: 4.0,
                                 ),
-                              );
-                            },
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      dateHeader,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: isDark
+                                                ? Colors.grey[300]
+                                                : Colors.grey[700],
+                                          ),
+                                    ),
+                                    Text(
+                                      '${txList.length} txs',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? Colors.grey[500]
+                                            : Colors.grey[500],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Card(
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: txList.length,
+                                  separatorBuilder: (_, __) => const Divider(
+                                    height: 1,
+                                    indent: 70,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final tx = txList[index];
+                                    return TransactionTile(
+                                      transaction: tx,
+                                      onTap: () {
+                                        showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          backgroundColor: Colors.transparent,
+                                          builder: (_) =>
+                                              TransactionDetailModal(
+                                                transaction: tx,
+                                                appState: appState,
+                                              ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
                           );
                         },
                       ),
@@ -225,6 +343,7 @@ class TransactionsScreen extends StatelessWidget {
           floatingActionButton: FloatingActionButton(
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
+            elevation: 3,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
@@ -238,6 +357,81 @@ class TransactionsScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _buildQuickPill(
+    BuildContext context, {
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? (isDark ? AppColors.darkSurface : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected
+                    ? (isDark ? Colors.white : AppColors.lightTextPrimary)
+                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Map<String, List<TransactionModel>> _groupTransactionsByDate(
+    List<TransactionModel> txs,
+  ) {
+    final Map<String, List<TransactionModel>> groups = {};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    for (final tx in txs) {
+      final txDate = DateTime(
+        tx.timestamp.year,
+        tx.timestamp.month,
+        tx.timestamp.day,
+      );
+      String header;
+      if (txDate == today) {
+        header = 'Today';
+      } else if (txDate == yesterday) {
+        header = 'Yesterday';
+      } else if (txDate.year == now.year) {
+        header = DateFormat('MMMM d').format(txDate);
+      } else {
+        header = DateFormat('MMMM d, yyyy').format(txDate);
+      }
+      groups.putIfAbsent(header, () => []).add(tx);
+    }
+    return groups;
   }
 
   void _showFilterBottomSheet(BuildContext context) {
