@@ -237,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.45,
+                  childAspectRatio: 1.3,
                   children: [
                     SummaryCard(
                       title: 'Expenses',

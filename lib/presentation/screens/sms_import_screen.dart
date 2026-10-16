@@ -299,25 +299,27 @@ class _SmsImportScreenState extends State<SmsImportScreen>
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('Import Complete'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Scanned messages: ${result.totalScanned}'),
-              const SizedBox(height: 4),
-              Text('Imported transactions: ${result.successfullyImported}'),
-              const SizedBox(height: 4),
-              Text('Duplicates skipped: ${result.duplicatesSkipped}'),
-              const SizedBox(height: 4),
-              Text('Unrecognized: ${result.unrecognizedSkipped}'),
-              if (result.errors.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Errors:\n${result.errors.join('\n')}',
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
-                ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Scanned messages: ${result.totalScanned}'),
+                const SizedBox(height: 4),
+                Text('Imported transactions: ${result.successfullyImported}'),
+                const SizedBox(height: 4),
+                Text('Duplicates skipped: ${result.duplicatesSkipped}'),
+                const SizedBox(height: 4),
+                Text('Unrecognized: ${result.unrecognizedSkipped}'),
+                if (result.errors.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'Errors:\n${result.errors.join('\n')}',
+                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
           actions: [
             FilledButton(

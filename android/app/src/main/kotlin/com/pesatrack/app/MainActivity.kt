@@ -42,8 +42,8 @@ class MainActivity : FlutterActivity() {
                 }
 
                 "queryInboxSms" -> {
-                    val limit = call.argument<Int>("limit") ?: 100
-                    val sinceTimestamp = call.argument<Long>("sinceTimestamp") ?: 0L
+                    val limit = (call.argument<Number>("limit"))?.toInt() ?: 100
+                    val sinceTimestamp = (call.argument<Number>("sinceTimestamp"))?.toLong() ?: 0L
                     try {
                         val messages = queryMpesaInboxMessages(limit, sinceTimestamp)
                         result.success(messages)
