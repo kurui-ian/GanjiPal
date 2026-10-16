@@ -64,10 +64,38 @@ void main() {
       final csv = CsvExporter.exportTransactionsToCsv([tx]);
 
       expect(csv, contains('Reference,Date,Type,Classification,Amount (KES)'));
+      expect(csv, contains('Timestamp (ISO)'));
       expect(csv, contains('QA12BC34DE'));
       expect(
           csv, contains('"Naivas, Westlands"')); // Escaped quotes due to comma
       expect(csv, contains('1500.00'));
+      expect(csv, contains(now.toIso8601String()));
+    });
+
+    test('CsvExporter sanitizes against CSV formula injection', () {
+      final maliciousTx = TransactionModel(
+        id: '2',
+        mpesaReference: 'SH01MAL01',
+        transactionType: TransactionType.buyGoods,
+        classification: FinancialClassification.expense,
+        amountCents: 10000,
+        feeCents: 0,
+        timestamp: now,
+        counterpartyName: '=CMD|calc.exe',
+        accountReference: '+44201234',
+        categoryId: 'other',
+        categoryName: 'Other / General',
+        source: TransactionSource.manual,
+        fingerprint: 'fp2',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final csv = CsvExporter.exportTransactionsToCsv([maliciousTx]);
+
+      // Ensure formulas starting with = or + are escaped with single-quote prefix
+      expect(csv, contains("'=CMD|calc.exe"));
+      expect(csv, contains("'+44201234"));
     });
 
     test('BackupCodec encodes and decodes complete data roundtrip', () {
