@@ -31,6 +31,7 @@ class DatabaseHelper {
       version: _databaseVersion,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
+      onOpen: _onOpen,
     );
   }
 
@@ -155,6 +156,16 @@ class DatabaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // Migration paths can be safely added here as database version increases
+  }
+
+  Future<void> _onOpen(Database db) async {
+    // Auto-migrate any previously recorded ZIIDI transactions to the savings category
+    await db.execute('''
+      UPDATE transactions
+      SET category_id = 'savings', category_name = 'Savings & Investments'
+      WHERE (LOWER(counterparty_name) LIKE '%ziidi%' OR LOWER(description) LIKE '%ziidi%')
+        AND category_id != 'savings'
+    ''');
   }
 
   /// Sets a persistent string preference.

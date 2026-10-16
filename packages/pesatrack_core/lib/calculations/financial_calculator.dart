@@ -193,6 +193,14 @@ class FinancialCalculator {
       if (startDate != null && tx.timestamp.isBefore(startDate)) continue;
       if (endDate != null && tx.timestamp.isAfter(endDate)) continue;
 
+      // Exclude income, cash deposits, and reversals from spending breakdown
+      if (tx.categoryId == 'income' ||
+          tx.classification == FinancialClassification.income ||
+          tx.classification == FinancialClassification.deposit ||
+          tx.classification == FinancialClassification.adjustment) {
+        continue;
+      }
+
       // Outflows include expenses, transfers (P2P / ZIIDI savings), and cash withdrawals
       final isOutflow = tx.classification == FinancialClassification.expense ||
           (includeAllOutflows &&
