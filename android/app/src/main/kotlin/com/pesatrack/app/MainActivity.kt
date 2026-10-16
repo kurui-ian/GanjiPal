@@ -79,9 +79,9 @@ class MainActivity : FlutterActivity() {
         val results = mutableListOf<Map<String, Any>>()
         val uri = Uri.parse("content://sms/inbox")
         val projection = arrayOf("_id", "address", "body", "date")
-        val selection = "date >= ?"
-        val selectionArgs = arrayOf(sinceTimestamp.toString())
-        val sortOrder = "date DESC LIMIT $limit"
+        val selection = if (sinceTimestamp > 0L) "date >= ?" else null
+        val selectionArgs = if (sinceTimestamp > 0L) arrayOf(sinceTimestamp.toString()) else null
+        val sortOrder = "date DESC"
 
         var cursor: Cursor? = null
         try {
@@ -107,6 +107,9 @@ class MainActivity : FlutterActivity() {
                         map["address"] = address
                         map["date"] = date
                         results.add(map)
+                        if (results.size >= limit) {
+                            break
+                        }
                     }
                 } while (cursor.moveToNext())
             }

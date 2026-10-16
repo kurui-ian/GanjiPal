@@ -175,7 +175,6 @@ class TransactionTile extends StatelessWidget {
         iconColor = Colors.teal;
         break;
       case FinancialClassification.unclassified:
-      default:
         iconData = Icons.help_outline_rounded;
         iconColor = Colors.grey;
         break;

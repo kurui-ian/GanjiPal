@@ -310,6 +310,13 @@ class _SmsImportScreenState extends State<SmsImportScreen>
               Text('Duplicates skipped: ${result.duplicatesSkipped}'),
               const SizedBox(height: 4),
               Text('Unrecognized: ${result.unrecognizedSkipped}'),
+              if (result.errors.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'Errors:\n${result.errors.join('\n')}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
             ],
           ),
           actions: [
@@ -409,7 +416,6 @@ class _SmsImportScreenState extends State<SmsImportScreen>
     final text = _pasteController.text.trim();
     if (text.isEmpty) return;
 
-    final previews = widget.appState.importPastedSms; // Just checking reference
     final list = MpesaParser().parse(text); // parse single or batch
     setState(() {
       _pastePreviews = [list];
