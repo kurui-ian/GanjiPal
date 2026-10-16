@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pesatrack_core/pesatrack_core.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../providers/app_state.dart';
@@ -97,6 +98,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
             state.categoryBreakdownForPeriod(_selectedPeriodIndex);
         final recentTxs = state.allTransactions.take(5).toList();
         final budgetStatuses = state.budgetStatuses;
+        BudgetStatus? primaryMonthlyBudget;
+        for (final bs in budgetStatuses) {
+          if (bs.budget.period == BudgetPeriod.monthly &&
+              bs.budget.categoryId == null) {
+            primaryMonthlyBudget = bs;
+            break;
+          }
+        }
+        if (primaryMonthlyBudget == null) {
+          for (final bs in budgetStatuses) {
+            if (bs.budget.period == BudgetPeriod.monthly) {
+              primaryMonthlyBudget = bs;
+              break;
+            }
+          }
+        }
+
+        final now = DateTime.now();
+        final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+        final daysLeft = (daysInMonth - now.day).clamp(0, 31);
 
         final avatarConfig =
             ProfileAvatarHelper.getConfig(state.avatarIndex);
@@ -104,10 +125,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ? state.userName[0].toUpperCase()
             : 'K';
 
-        // Tariff fee percentage of gross spending
-        final tariffPercent = summary.totalGrossSpendingCents > 0
-            ? ((summary.totalFeesCents / summary.totalGrossSpendingCents) * 100)
-            : 0.0;
+        final otherBudgets = budgetStatuses
+            .where((bs) => bs.budget.id != primaryMonthlyBudget?.budget.id)
+            .toList();
 
         return Scaffold(
           body: SafeArea(
@@ -512,112 +532,264 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 18),
 
-                  // Dedicated M-Pesa Tariffs & Charges Insight Card
+                  // Primary Monthly Budget Card (Tracks monthly spending limit)
                   Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                    child: InkWell(
+                      onTap: () => _openMonthlyBudgetModal(
+                        context,
+                        state,
+                        existing: primaryMonthlyBudget?.budget,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: primaryMonthlyBudget != null
+                            ? Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blueGrey.withValues(
-                                        alpha: isDark ? 0.25 : 0.12,
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: (primaryMonthlyBudget.isOverBudget
+                                                  ? AppColors.expense
+                                                  : primaryMonthlyBudget.isWarning
+                                                      ? Colors.amber[800]!
+                                                      : AppColors.primary)
+                                              .withValues(
+                                            alpha: isDark ? 0.25 : 0.12,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.account_balance_wallet_rounded,
+                                          color: primaryMonthlyBudget.isOverBudget
+                                              ? AppColors.expense
+                                              : primaryMonthlyBudget.isWarning
+                                                  ? Colors.amber[800]
+                                                  : AppColors.primary,
+                                          size: 18,
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: const Icon(
-                                      Icons.receipt_long_rounded,
-                                      color: Colors.blueGrey,
-                                      size: 18,
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              primaryMonthlyBudget
+                                                      .budget.categoryName ??
+                                                  'Monthly Budget',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 13.5,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            Text(
+                                              'KSh ${currencyFormat.format(primaryMonthlyBudget.spentInShillings)} of KSh ${currencyFormat.format(primaryMonthlyBudget.limitInShillings)}',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: isDark
+                                                    ? Colors.grey[400]
+                                                    : Colors.grey[600],
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3.5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: (primaryMonthlyBudget.isOverBudget
+                                                  ? AppColors.expense
+                                                  : primaryMonthlyBudget.isWarning
+                                                      ? Colors.amber[800]!
+                                                      : AppColors.income)
+                                              .withValues(
+                                            alpha: isDark ? 0.2 : 0.12,
+                                          ),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              primaryMonthlyBudget.isOverBudget
+                                                  ? 'Exceeded'
+                                                  : '${(primaryMonthlyBudget.percentageUsed * 100).toInt()}% used',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.w700,
+                                                color: primaryMonthlyBudget
+                                                        .isOverBudget
+                                                    ? AppColors.expense
+                                                    : primaryMonthlyBudget.isWarning
+                                                        ? Colors.amber[800]
+                                                        : AppColors.income,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              Icons.edit_outlined,
+                                              size: 11,
+                                              color: primaryMonthlyBudget
+                                                      .isOverBudget
+                                                  ? AppColors.expense
+                                                  : primaryMonthlyBudget.isWarning
+                                                      ? Colors.amber[800]
+                                                      : AppColors.income,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: primaryMonthlyBudget
+                                          .percentageUsed
+                                          .clamp(0.0, 1.0),
+                                      minHeight: 6,
+                                      backgroundColor: (isDark
+                                              ? Colors.white
+                                              : Colors.black)
+                                          .withValues(alpha: 0.08),
+                                      valueColor:
+                                          AlwaysStoppedAnimation<Color>(
+                                        primaryMonthlyBudget.isOverBudget
+                                            ? AppColors.expense
+                                            : primaryMonthlyBudget.isWarning
+                                                ? Colors.amber[800]!
+                                                : AppColors.income,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        'M-Pesa Tariffs & Fees',
+                                      Text(
+                                        primaryMonthlyBudget.remainingInShillings >=
+                                                0
+                                            ? 'KSh ${currencyFormat.format(primaryMonthlyBudget.remainingInShillings)} remaining'
+                                            : 'Over by KSh ${currencyFormat.format(-primaryMonthlyBudget.remainingInShillings)}',
                                         style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 13.5,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: primaryMonthlyBudget
+                                                  .isOverBudget
+                                              ? AppColors.expense
+                                              : (isDark
+                                                  ? Colors.grey[400]
+                                                  : Colors.grey[600]),
                                         ),
                                       ),
                                       Text(
-                                        'Safaricom service charges paid',
+                                        '$daysLeft days left in month',
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: isDark
-                                              ? Colors.grey[400]
-                                              : Colors.grey[600],
+                                              ? Colors.grey[500]
+                                              : Colors.grey[500],
                                         ),
                                       ),
                                     ],
                                   ),
                                 ],
-                              ),
-                              Text(
-                                'KSh ${currencyFormat.format(summary.feesInShillings)}',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.blueGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (summary.totalGrossSpendingCents > 0) ...[
-                            const SizedBox(height: 12),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(4),
-                              child: LinearProgressIndicator(
-                                value: (summary.totalFeesCents /
-                                        summary.totalGrossSpendingCents)
-                                    .clamp(0.0, 1.0),
-                                minHeight: 6,
-                                backgroundColor:
-                                    (isDark ? Colors.white : Colors.black)
-                                        .withValues(alpha: 0.08),
-                                valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Colors.blueGrey,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${tariffPercent.toStringAsFixed(1)}% of total outflows',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: isDark
-                                        ? Colors.grey[400]
-                                        : Colors.grey[600],
+                              )
+                            : Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary.withValues(
+                                        alpha: isDark ? 0.25 : 0.12,
+                                      ),
+                                      borderRadius:
+                                          BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.savings_outlined,
+                                      color: AppColors.primary,
+                                      size: 18,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  'Paybill • Till • Withdrawals',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isDark
-                                        ? Colors.grey[500]
-                                        : Colors.grey[500],
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Monthly Budget',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13.5,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          'Set spending limit for this month',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: isDark
+                                                ? Colors.grey[400]
+                                                : Colors.grey[600],
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ],
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primary,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.add,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          'Set Limit',
+                                          style: TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w700,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     ),
                   ),
@@ -648,13 +820,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Active Budgets Quick Glance (if any)
-                  if (budgetStatuses.isNotEmpty) ...[
+                  // Other Category Budgets (if any)
+                  if (otherBudgets.isNotEmpty) ...[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Budgets & Limits',
+                          'Category Limits',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -667,7 +839,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ...budgetStatuses.take(2).map((bs) {
+                    ...otherBudgets.take(2).map((bs) {
                       final percent = (bs.percentageUsed * 100).toInt();
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -792,6 +964,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _openMonthlyBudgetModal(
+    BuildContext context,
+    AppState state, {
+    BudgetModel? existing,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _MonthlyBudgetBottomSheet(
+        appState: state,
+        existingBudget: existing,
+      ),
+    );
+  }
+
   Widget _buildSegmentTab(int index, String label) {
     final isSelected = _selectedPeriodIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -882,6 +1070,236 @@ class _DashboardScreenState extends State<DashboardScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MonthlyBudgetBottomSheet extends StatefulWidget {
+  final AppState appState;
+  final BudgetModel? existingBudget;
+
+  const _MonthlyBudgetBottomSheet({
+    required this.appState,
+    this.existingBudget,
+  });
+
+  @override
+  State<_MonthlyBudgetBottomSheet> createState() =>
+      _MonthlyBudgetBottomSheetState();
+}
+
+class _MonthlyBudgetBottomSheetState extends State<_MonthlyBudgetBottomSheet> {
+  late final TextEditingController _controller;
+  double _warningThreshold = 0.80;
+
+  @override
+  void initState() {
+    super.initState();
+    final existingLimit = widget.existingBudget?.limitInShillings;
+    _controller = TextEditingController(
+      text: existingLimit != null
+          ? existingLimit.toStringAsFixed(0)
+          : '25000',
+    );
+    _warningThreshold = widget.existingBudget?.warningThresholdPercent ?? 0.80;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _applyPreset(int amount) {
+    _controller.text = amount.toString();
+    _controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: _controller.text.length),
+    );
+    setState(() {});
+  }
+
+  void _save() {
+    final clean = _controller.text.replaceAll(',', '').trim();
+    final amount = double.tryParse(clean.isEmpty ? '25000' : clean);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid monthly budget amount')),
+      );
+      return;
+    }
+
+    final budget = BudgetModel(
+      id: widget.existingBudget?.id ??
+          DateTime.now().microsecondsSinceEpoch.toString(),
+      categoryId: null, // Global monthly budget
+      categoryName: null,
+      period: BudgetPeriod.monthly,
+      limitCents: (amount * 100).round(),
+      warningThresholdPercent: _warningThreshold,
+      startDate: widget.existingBudget?.startDate ?? DateTime.now(),
+      createdAt: widget.existingBudget?.createdAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    widget.appState.saveBudget(budget);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Monthly budget set to KSh ${NumberFormat('#,##0').format(amount)}',
+        ),
+      ),
+    );
+  }
+
+  void _delete() {
+    if (widget.existingBudget != null) {
+      widget.appState.deleteBudget(widget.existingBudget!.id);
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Monthly budget removed')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final isEditing = widget.existingBudget != null;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.darkSurface : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isEditing ? 'Edit Monthly Budget' : 'Set Monthly Budget',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, size: 20),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+            Text(
+              'Set a target spending limit for this month across your M-Pesa account.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _controller,
+              keyboardType: TextInputType.number,
+              autofocus: false,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              decoration: InputDecoration(
+                prefixText: 'KSh ',
+                hintText: '25,000',
+                labelText: 'Monthly Spending Limit',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              children: [10000, 20000, 30000, 50000].map((amt) {
+                return ActionChip(
+                  label: Text('KSh ${NumberFormat('#,##0').format(amt)}'),
+                  onPressed: () => _applyPreset(amt),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Alert Warning Threshold',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  '${(_warningThreshold * 100).toInt()}%',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            Slider(
+              value: _warningThreshold,
+              min: 0.50,
+              max: 0.95,
+              divisions: 9,
+              activeColor: AppColors.primary,
+              onChanged: (val) => setState(() => _warningThreshold = val),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: _save,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  isEditing ? 'Save Changes' : 'Set Monthly Budget',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            if (isEditing) ...[
+              const SizedBox(height: 6),
+              Center(
+                child: TextButton(
+                  onPressed: _delete,
+                  child: const Text(
+                    'Remove Monthly Budget',
+                    style: TextStyle(
+                      color: AppColors.expense,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
