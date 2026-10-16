@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../providers/app_state.dart';
 import '../widgets/empty_state_view.dart';
+import '../widgets/profile_edit_dialog.dart';
 import '../widgets/spending_donut_chart.dart';
 import '../widgets/transaction_tile.dart';
 import 'add_edit_transaction_screen.dart';
@@ -33,6 +34,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (hour < 12) return 'Good morning,';
     if (hour < 17) return 'Good afternoon,';
     return 'Good evening,';
+  }
+
+  String get _selectedPeriodLabel {
+    if (_selectedPeriodIndex == 0) return 'today';
+    if (_selectedPeriodIndex == 1) return 'this week';
+    return 'this month';
   }
 
   @override
@@ -91,6 +98,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final recentTxs = state.allTransactions.take(5).toList();
         final budgetStatuses = state.budgetStatuses;
 
+        final avatarConfig =
+            ProfileAvatarHelper.getConfig(state.avatarIndex);
+        final initial = state.userName.isNotEmpty
+            ? state.userName[0].toUpperCase()
+            : 'K';
+
+        // Tariff fee percentage of gross spending
+        final tariffPercent = summary.totalGrossSpendingCents > 0
+            ? ((summary.totalFeesCents / summary.totalGrossSpendingCents) * 100)
+            : 0.0;
+
         return Scaffold(
           body: SafeArea(
             child: RefreshIndicator(
@@ -101,59 +119,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   vertical: 12.0,
                 ),
                 children: [
-                  // Minimal Top Header
+                  // Minimal Top Header with User Profile
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: AppColors.heroGradient,
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                      GestureDetector(
+                        onTap: () => _openProfileModal(context, state),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: avatarConfig.gradient,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: avatarConfig.gradient.first
+                                        .withValues(alpha: 0.28),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                'GP',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 16,
+                              child: Center(
+                                child: Text(
+                                  initial,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                _getGreeting(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[600],
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _getGreeting(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
                                 ),
-                              ),
-                              const Text(
-                                'GanjiPal',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.4,
+                                Row(
+                                  children: [
+                                    Text(
+                                      '${state.userName} 👋',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.4,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.edit_outlined,
+                                      size: 14,
+                                      color: isDark
+                                          ? Colors.grey[500]
+                                          : Colors.grey[400],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       Row(
                         children: [
@@ -211,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Hero Balance Card (Minimal Modern Fintech Gradient)
+                  // Hero Money Tracing Card (Net Cash Flow is the Hero, Balance is secondary)
                   Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -232,60 +273,70 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Top Row: Net Flow Label + Subtle Balance Badge
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
+                            const Row(
                               children: [
-                                const Text(
-                                  'Total Balance',
+                                Icon(
+                                  Icons.query_stats_rounded,
+                                  color: Colors.white70,
+                                  size: 15,
+                                ),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Net Money Flow',
                                   style: TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 13,
+                                    fontSize: 12.5,
                                     fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isBalanceHidden = !_isBalanceHidden;
-                                    });
-                                  },
-                                  child: Icon(
-                                    _isBalanceHidden
-                                        ? Icons.visibility_off_outlined
-                                        : Icons.visibility_outlined,
-                                    color: Colors.white70,
-                                    size: 18,
                                   ),
                                 ),
                               ],
                             ),
+                            // Secondary Account Balance Pill
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 10,
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.18),
+                                color: Colors.white.withValues(alpha: 0.16),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Row(
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.account_balance_wallet_rounded,
                                     color: Colors.white,
-                                    size: 13,
+                                    size: 12,
                                   ),
-                                  SizedBox(width: 5),
+                                  const SizedBox(width: 5),
                                   Text(
-                                    'M-Pesa Ledger',
-                                    style: TextStyle(
+                                    _isBalanceHidden
+                                        ? 'Bal: ••••'
+                                        : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 11,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        _isBalanceHidden = !_isBalanceHidden;
+                                      });
+                                    },
+                                    child: Icon(
+                                      _isBalanceHidden
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: Colors.white70,
+                                      size: 14,
                                     ),
                                   ),
                                 ],
@@ -294,20 +345,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
+
+                        // Prominent Net Cash Flow Display
                         Text(
                           _isBalanceHidden
                               ? '••••••••••'
-                              : 'KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
-                          style: const TextStyle(
-                            color: Colors.white,
+                              : '${summary.netCashFlowCents >= 0 ? "+" : ""}KSh ${currencyFormat.format(summary.netCashFlowInShillings)}',
+                          style: TextStyle(
+                            color: summary.netCashFlowCents >= 0
+                                ? Colors.white
+                                : const Color(0xFFFFD1D9),
                             fontSize: 30,
                             fontWeight: FontWeight.w800,
                             letterSpacing: -0.6,
                           ),
                         ),
+                        const SizedBox(height: 6),
+
+                        // Activity Badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '${summary.transactionCount} transactions tracked $_selectedPeriodLabel',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         const Divider(color: Colors.white24, height: 1),
                         const SizedBox(height: 14),
+
+                        // Income vs Outflow Sub-Metrics
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -367,7 +445,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     const Text(
-                                      'Gross Out',
+                                      'Money Out',
                                       style: TextStyle(
                                         color: Colors.white70,
                                         fontSize: 11,
@@ -392,23 +470,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 18),
 
-                  // Flow Breakdown Cards (Horizontal Cards)
+                  // Flow Breakdown Cards: Tariffs Paid, Cash Out, Transfers
                   Row(
                     children: [
                       Expanded(
                         child: _buildFlowCard(
                           context,
-                          title: 'Net Flow',
+                          title: 'M-Pesa Tariffs',
                           amount:
-                              '${summary.netCashFlowCents >= 0 ? "+" : ""}KSh ${currencyFormat.format(summary.netCashFlowInShillings)}',
-                          subtitle: '${summary.transactionCount} transactions',
-                          icon: Icons.trending_up,
-                          iconColor: summary.netCashFlowCents >= 0
-                              ? AppColors.income
-                              : AppColors.expense,
+                              'KSh ${currencyFormat.format(summary.feesInShillings)}',
+                          subtitle: 'Safaricom fees',
+                          icon: Icons.receipt_long_rounded,
+                          iconColor: Colors.blueGrey,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _buildFlowCard(
                           context,
@@ -420,7 +496,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           iconColor: AppColors.withdrawal,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: _buildFlowCard(
                           context,
@@ -433,6 +509,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 18),
+
+                  // Dedicated M-Pesa Tariffs & Charges Insight Card
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blueGrey.withValues(
+                                        alpha: isDark ? 0.25 : 0.12,
+                                      ),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(
+                                      Icons.receipt_long_rounded,
+                                      color: Colors.blueGrey,
+                                      size: 18,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'M-Pesa Tariffs & Fees',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13.5,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Safaricom service charges paid',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: isDark
+                                              ? Colors.grey[400]
+                                              : Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Text(
+                                'KSh ${currencyFormat.format(summary.feesInShillings)}',
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.blueGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (summary.totalGrossSpendingCents > 0) ...[
+                            const SizedBox(height: 12),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: (summary.totalFeesCents /
+                                        summary.totalGrossSpendingCents)
+                                    .clamp(0.0, 1.0),
+                                minHeight: 6,
+                                backgroundColor:
+                                    (isDark ? Colors.white : Colors.black)
+                                        .withValues(alpha: 0.08),
+                                valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Colors.blueGrey,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${tariffPercent.toStringAsFixed(1)}% of total outflows',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                                  ),
+                                ),
+                                Text(
+                                  'Paybill • Till • Withdrawals',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark
+                                        ? Colors.grey[500]
+                                        : Colors.grey[500],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -596,6 +783,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  void _openProfileModal(BuildContext context, AppState state) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => ProfileEditBottomSheet(appState: state),
+    );
+  }
+
   Widget _buildSegmentTab(int index, String label) {
     final isSelected = _selectedPeriodIndex == index;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -650,8 +846,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required IconData icon,
     required Color iconColor,
   }) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Card(
       child: Padding(
