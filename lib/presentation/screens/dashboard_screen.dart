@@ -42,10 +42,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         if (state.allTransactions.isEmpty) {
           return Scaffold(
-            appBar: AppBar(title: const Text('PesaTrack')),
+            appBar: AppBar(title: const Text('GanjiPal')),
             body: EmptyStateView(
               icon: Icons.account_balance_wallet_outlined,
-              title: 'Welcome to PesaTrack',
+              title: 'Welcome to GanjiPal',
               message: 'Keep track of your daily M-Pesa spending, income, and cash flow automatically or manually.',
               primaryActionTitle: 'Import M-Pesa SMS',
               onPrimaryAction: () {
@@ -79,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('PesaTrack'),
+            title: const Text('GanjiPal'),
             actions: [
               IconButton(
                 icon: const Icon(Icons.sms_outlined),

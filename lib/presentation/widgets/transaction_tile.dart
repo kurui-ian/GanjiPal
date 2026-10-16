@@ -141,6 +141,29 @@ class TransactionTile extends StatelessWidget {
                     ),
                   ),
                 ],
+                if (transaction.balanceAfterCents != null) ...[
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: (isDark ? Colors.white : Colors.black).withValues(
+                        alpha: 0.05,
+                      ),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Bal: KSh ${currencyFormat.format(transaction.balanceAfterCents! / 100.0)}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.grey[300] : Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],

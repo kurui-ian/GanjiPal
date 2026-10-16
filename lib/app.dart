@@ -8,10 +8,10 @@ import 'presentation/screens/dashboard_screen.dart';
 import 'presentation/screens/settings_screen.dart';
 import 'presentation/screens/transactions_screen.dart';
 
-class PesaTrackApp extends StatelessWidget {
+class GanjiPalApp extends StatelessWidget {
   final AppState appState;
 
-  const PesaTrackApp({super.key, required this.appState});
+  const GanjiPalApp({super.key, required this.appState});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class PesaTrackApp extends StatelessWidget {
       listenable: appState,
       builder: (context, _) {
         return MaterialApp(
-          title: 'PesaTrack',
+          title: 'GanjiPal',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
@@ -30,6 +30,8 @@ class PesaTrackApp extends StatelessWidget {
     );
   }
 }
+
+typedef PesaTrackApp = GanjiPalApp;
 
 class MainNavigationScaffold extends StatefulWidget {
   final AppState appState;

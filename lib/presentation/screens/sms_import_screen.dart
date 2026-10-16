@@ -153,7 +153,7 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'PesaTrack parses M-Pesa confirmation SMS entirely on your device. '
+                        'GanjiPal parses M-Pesa confirmation SMS entirely on your device. '
                         'No message content or transaction details are ever sent to remote servers or third parties.',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 12,

@@ -159,5 +159,40 @@ void main() {
 
       expect(tapped, isTrue);
     });
+
+    testWidgets('renders balance after transaction when balanceAfterCents is present', (
+      tester,
+    ) async {
+      final balanceTx = TransactionModel(
+        id: 'tx_balance_test',
+        mpesaReference: 'SH05BAL005',
+        transactionType: TransactionType.sendMoney,
+        classification: FinancialClassification.transfer,
+        amountCents: 150000,
+        feeCents: 1500,
+        balanceAfterCents: 1245000, // KSh 12,450.00
+        currency: 'KES',
+        timestamp: testDate,
+        counterpartyName: 'JANE DOE',
+        categoryId: 'transfers',
+        categoryName: 'Transfers & Send Money',
+        source: TransactionSource.importedSms,
+        fingerprint: 'fp_bal_1',
+        createdAt: testDate,
+        updatedAt: testDate,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TransactionTile(transaction: balanceTx),
+          ),
+        ),
+      );
+
+      expect(find.text('- KSh 1,500.00'), findsOneWidget);
+      expect(find.text('Fee: KSh 15.00'), findsOneWidget);
+      expect(find.text('Bal: KSh 12,450.00'), findsOneWidget);
+    });
   });
 }

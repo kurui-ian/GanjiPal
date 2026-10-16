@@ -26,6 +26,19 @@ class TransactionsScreen extends StatelessWidget {
             appState.filterStartDate != null ||
             appState.searchQuery.isNotEmpty;
 
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final currencyFormat = NumberFormat('#,##0.00', 'en_US');
+
+        // Find the most recent transaction that recorded an M-Pesa balance
+        TransactionModel? latestWithBalance;
+        for (final tx in appState.allTransactions) {
+          if (tx.balanceAfterCents != null) {
+            latestWithBalance = tx;
+            break;
+          }
+        }
+
         return Scaffold(
           appBar: AppBar(
             title: const Text('Transactions'),
@@ -63,6 +76,79 @@ class TransactionsScreen extends StatelessWidget {
                   onChanged: (val) => appState.setSearchQuery(val),
                 ),
               ),
+
+              // Current Balance Banner
+              if (latestWithBalance != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14.0,
+                      vertical: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(
+                        alpha: isDark ? 0.15 : 0.08,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(
+                              alpha: isDark ? 0.25 : 0.15,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.account_balance_wallet_rounded,
+                            size: 18,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Latest M-Pesa Balance',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: isDark
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              'KSh ${currencyFormat.format(latestWithBalance.balanceAfterCents! / 100.0)}',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: isDark
+                                    ? AppColors.primaryLight
+                                    : AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Text(
+                          DateFormat('MMM d, h:mm a').format(
+                            latestWithBalance.timestamp,
+                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
               // Filter Chips
               if (hasActiveFilters)

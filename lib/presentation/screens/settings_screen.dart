@@ -143,7 +143,7 @@ class SettingsScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         '• All financial transactions and SMS receipts are stored in application-private SQLite storage.\n'
-                        '• PesaTrack does not transmit your financial data to any cloud service, external AI, or telemetry platform.\n'
+                        '• GanjiPal does not transmit your financial data to any cloud service, external AI, or telemetry platform.\n'
                         '• Deduplication is performed deterministically using local SHA-256 hashing.',
                         style: theme.textTheme.bodySmall?.copyWith(
                           height: 1.5,
@@ -225,13 +225,13 @@ class SettingsScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Paste your verified PesaTrack backup JSON string:'),
+            const Text('Paste your verified GanjiPal backup JSON string:'),
             const SizedBox(height: 12),
             TextField(
               controller: textController,
               maxLines: 4,
               decoration: const InputDecoration(
-                hintText: '{"app": "PesaTrack", ...}',
+                hintText: '{"app": "GanjiPal", ...}',
               ),
             ),
           ],
