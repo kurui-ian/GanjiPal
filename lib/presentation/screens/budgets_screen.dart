@@ -173,7 +173,7 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
 
           // Period Selector
           DropdownButtonFormField<BudgetPeriod>(
-            value: _selectedPeriod,
+            initialValue: _selectedPeriod,
             decoration: const InputDecoration(labelText: 'Budget Period'),
             items: BudgetPeriod.values.map((p) {
               return DropdownMenuItem(value: p, child: Text(p.displayName));
@@ -186,7 +186,7 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
 
           // Scope: Overall or Specific Category
           DropdownButtonFormField<String?>(
-            value: _selectedCategoryId,
+            initialValue: _selectedCategoryId,
             decoration: const InputDecoration(labelText: 'Category Scope'),
             items: [
               const DropdownMenuItem(

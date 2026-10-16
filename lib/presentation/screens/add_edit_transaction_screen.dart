@@ -144,7 +144,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
 
             // Transaction Type Selector
             DropdownButtonFormField<TransactionType>(
-              value: _selectedType,
+              initialValue: _selectedType,
               decoration: const InputDecoration(labelText: 'Transaction Type'),
               items: const [
                 DropdownMenuItem(
@@ -188,7 +188,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
 
             // Category Selector
             DropdownButtonFormField<String>(
-              value: _selectedCategoryId,
+              initialValue: _selectedCategoryId,
               decoration: const InputDecoration(labelText: 'Category'),
               items: widget.appState.categories.map((c) {
                 return DropdownMenuItem(value: c.id, child: Text(c.name));

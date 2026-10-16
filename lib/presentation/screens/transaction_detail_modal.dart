@@ -142,7 +142,7 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: _selectedCategoryId,
+            initialValue: _selectedCategoryId,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 12,

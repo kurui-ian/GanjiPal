@@ -332,7 +332,7 @@ class _FilterBottomSheetState extends State<_FilterBottomSheet> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
-            value: _selectedSort,
+            initialValue: _selectedSort,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
