@@ -129,6 +129,14 @@ class DatabaseHelper {
       )
     ''');
 
+    // 6. User Preferences (Settings, User Name, Avatar, etc.)
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    ''');
+
     // Seed default categories
     await _seedDefaultCategories(db);
   }
@@ -147,6 +155,43 @@ class DatabaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     // Migration paths can be safely added here as database version increases
+  }
+
+  /// Sets a persistent string preference.
+  Future<void> setPreference(String key, String value) async {
+    final db = await database;
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    ''');
+    await db.insert(
+      'user_preferences',
+      {'key': key, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Retrieves a persistent string preference.
+  Future<String?> getPreference(String key) async {
+    final db = await database;
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS user_preferences (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    ''');
+    final maps = await db.query(
+      'user_preferences',
+      where: 'key = ?',
+      whereArgs: [key],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return maps.first['value'] as String?;
+    }
+    return null;
   }
 
   /// Closes database connection.
