@@ -250,8 +250,9 @@ class _SpendingDonutChartState extends State<SpendingDonutChart> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   List<PieChartSectionData> _buildSections(bool isDark) {
     return widget.breakdown.asMap().entries.map((entry) {
