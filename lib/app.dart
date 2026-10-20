@@ -6,6 +6,7 @@ import 'presentation/screens/analytics_screen.dart';
 import 'presentation/screens/budgets_screen.dart';
 import 'presentation/screens/dashboard_screen.dart';
 import 'presentation/screens/settings_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 import 'presentation/screens/transactions_screen.dart';
 
 class GanjiPalApp extends StatelessWidget {
@@ -24,7 +25,10 @@ class GanjiPalApp extends StatelessWidget {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: appState.themeMode,
-          home: MainNavigationScaffold(appState: appState),
+          home: SplashScreen(
+            appState: appState,
+            nextScreen: MainNavigationScaffold(appState: appState),
+          ),
         );
       },
     );

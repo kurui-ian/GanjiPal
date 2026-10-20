@@ -4,6 +4,7 @@ import 'package:pesatrack_core/pesatrack_core.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../providers/app_state.dart';
+import '../widgets/animated_amount_text.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/profile_edit_dialog.dart';
 import '../widgets/spending_donut_chart.dart';
@@ -53,7 +54,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final isDark = theme.brightness == Brightness.dark;
         final currencyFormat = NumberFormat('#,##0.00', 'en_US');
 
-        if (state.isLoading) {
+        if (state.isLoading && state.allTransactions.isEmpty) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
@@ -316,50 +317,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ],
                             ),
                             // Secondary Account Balance Pill
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.16),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.account_balance_wallet_rounded,
-                                    color: Colors.white,
-                                    size: 12,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    _isBalanceHidden
-                                        ? 'Bal: ••••'
-                                        : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
-                                    style: const TextStyle(
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.16),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.account_balance_wallet_rounded,
                                       color: Colors.white,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
+                                      size: 12,
                                     ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        _isBalanceHidden = !_isBalanceHidden;
-                                      });
-                                    },
-                                    child: Icon(
-                                      _isBalanceHidden
-                                          ? Icons.visibility_off_outlined
-                                          : Icons.visibility_outlined,
-                                      color: Colors.white70,
-                                      size: 14,
+                                    const SizedBox(width: 5),
+                                    Flexible(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerLeft,
+                                        child: Text(
+                                          _isBalanceHidden
+                                              ? 'Bal: ••••'
+                                              : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 6),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          _isBalanceHidden = !_isBalanceHidden;
+                                        });
+                                      },
+                                      child: Icon(
+                                        _isBalanceHidden
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                        color: Colors.white70,
+                                        size: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -367,19 +376,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 12),
 
                         // Prominent Net Cash Flow Display
-                        Text(
-                          _isBalanceHidden
-                              ? '••••••••••'
-                              : '${summary.netCashFlowCents >= 0 ? "+" : ""}KSh ${currencyFormat.format(summary.netCashFlowInShillings)}',
-                          style: TextStyle(
-                            color: summary.netCashFlowCents >= 0
-                                ? Colors.white
-                                : const Color(0xFFFFD1D9),
-                            fontSize: 30,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.6,
-                          ),
-                        ),
+                        _isBalanceHidden
+                            ? const Text(
+                                '••••••••••',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.6,
+                                ),
+                              )
+                            : AnimatedAmountText(
+                                amount: summary.netCashFlowInShillings,
+                                prefix: summary.netCashFlowCents >= 0 ? '+KSh ' : 'KSh ',
+                                style: TextStyle(
+                                  color: summary.netCashFlowCents >= 0
+                                      ? Colors.white
+                                      : const Color(0xFFFFD1D9),
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.6,
+                                ),
+                              ),
                         const SizedBox(height: 6),
 
                         // Activity Badge
@@ -405,83 +423,97 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const Divider(color: Colors.white24, height: 1),
                         const SizedBox(height: 14),
 
-                        // Income vs Outflow Sub-Metrics
+                        // Income vs Outflow Sub-Metrics (Fully Responsive & Overflow-Proof)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_downward_rounded,
-                                    color: Colors.white,
-                                    size: 14,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Money In',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 11,
-                                      ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
                                     ),
-                                    Text(
-                                      '+KSh ${currencyFormat.format(summary.incomeInShillings)}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                      ),
+                                    child: const Icon(
+                                      Icons.arrow_downward_rounded,
+                                      color: Colors.white,
+                                      size: 14,
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Money In',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                        AnimatedAmountText(
+                                          amount: summary.incomeInShillings,
+                                          prefix: '+KSh ',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_upward_rounded,
-                                    color: Colors.white,
-                                    size: 14,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text(
-                                      'Money Out',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 11,
-                                      ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.15),
+                                      shape: BoxShape.circle,
                                     ),
-                                    Text(
-                                      '-KSh ${currencyFormat.format(summary.totalOutgoingInShillings)}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                      ),
+                                    child: const Icon(
+                                      Icons.arrow_upward_rounded,
+                                      color: Colors.white,
+                                      size: 14,
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        const Text(
+                                          'Money Out',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                        AnimatedAmountText(
+                                          amount: summary.totalOutgoingInShillings,
+                                          prefix: '-KSh ',
+                                          alignment: Alignment.centerRight,
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -814,9 +846,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
 
                   // Spending Overview Donut Chart
-                  SpendingDonutChart(
-                    breakdown: periodBreakdown,
-                    totalSpentInShillings: periodBreakdown.fold<double>(0, (sum, item) => sum + item.amountInShillings),
+                  RepaintBoundary(
+                    child: SpendingDonutChart(
+                      breakdown: periodBreakdown,
+                      totalSpentInShillings: periodBreakdown.fold<double>(0, (sum, item) => sum + item.amountInShillings),
+                    ),
                   ),
                   const SizedBox(height: 20),
 
@@ -1060,15 +1094,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 2),
-            Text(
-              amount,
-              style: const TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                amount,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                ),
+                maxLines: 1,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -1181,10 +1218,12 @@ class _MonthlyBudgetBottomSheetState extends State<_MonthlyBudgetBottomSheet> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Center(
               child: Container(
                 width: 40,
@@ -1300,7 +1339,7 @@ class _MonthlyBudgetBottomSheetState extends State<_MonthlyBudgetBottomSheet> {
                 ),
               ),
             ],
-          ],
+          ),
         ),
       ),
     );

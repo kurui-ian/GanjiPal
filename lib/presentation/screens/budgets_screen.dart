@@ -124,29 +124,33 @@ class BudgetsScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              Text(
-                                'KSh ${currencyFormat.format(totalSpentCents / 100.0)}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                Text(
+                                  'KSh ${currencyFormat.format(totalSpentCents / 100.0)}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '/ KSh ${currencyFormat.format(totalLimitCents / 100.0)}',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                const SizedBox(width: 6),
+                                Text(
+                                  '/ KSh ${currencyFormat.format(totalLimitCents / 100.0)}',
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 14),
                           ClipRRect(

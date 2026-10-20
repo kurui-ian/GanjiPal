@@ -82,87 +82,101 @@ class _SpendingDonutChartState extends State<SpendingDonutChart> {
             ),
             const SizedBox(height: 20),
 
-            // Main Donut & Legend Container
-            Row(
-              children: [
-                // Donut Chart with Centered Total
-                SizedBox(
-                  width: 140,
-                  height: 140,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      PieChart(
-                        PieChartData(
-                          pieTouchData: PieTouchData(
-                            touchCallback: (event, pieTouchResponse) {
-                              setState(() {
-                                if (!event.isInterestedForInteractions ||
-                                    pieTouchResponse == null ||
-                                    pieTouchResponse.touchedSection == null) {
-                                  _touchedIndex = -1;
-                                  return;
-                                }
-                                _touchedIndex = pieTouchResponse
-                                    .touchedSection!
-                                    .touchedSectionIndex;
-                              });
-                            },
-                          ),
-                          borderData: FlBorderData(show: false),
-                          sectionsSpace: 3,
-                          centerSpaceRadius: 44,
-                          sections: hasSpending
-                              ? _buildSections(isDark)
-                              : [
-                                  PieChartSectionData(
-                                    color: (isDark
-                                            ? Colors.white
-                                            : Colors.black)
-                                        .withValues(alpha: 0.07),
-                                    value: 1,
-                                    title: '',
-                                    radius: 14,
-                                  ),
-                                ],
-                        ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
+            // Main Donut & Legend Container with Adaptive Sizing
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 320;
+                final donutSize = isCompact ? 116.0 : 136.0;
+                final centerRadius = isCompact ? 36.0 : 42.0;
+                final spacing = isCompact ? 12.0 : 18.0;
+
+                return Row(
+                  children: [
+                    // Donut Chart with Centered Total
+                    SizedBox(
+                      width: donutSize,
+                      height: donutSize,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Text(
-                            'KSh ${currencyFormat.format(displayTotal)}',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                              letterSpacing: -0.3,
+                          RepaintBoundary(
+                            child: PieChart(
+                              PieChartData(
+                                pieTouchData: PieTouchData(
+                                  touchCallback: (event, pieTouchResponse) {
+                                    setState(() {
+                                      if (!event.isInterestedForInteractions ||
+                                          pieTouchResponse == null ||
+                                          pieTouchResponse.touchedSection == null) {
+                                        _touchedIndex = -1;
+                                        return;
+                                      }
+                                      _touchedIndex = pieTouchResponse
+                                          .touchedSection!
+                                          .touchedSectionIndex;
+                                    });
+                                  },
+                                ),
+                                borderData: FlBorderData(show: false),
+                                sectionsSpace: 3,
+                                centerSpaceRadius: centerRadius,
+                                sections: hasSpending
+                                    ? _buildSections(isDark)
+                                    : [
+                                        PieChartSectionData(
+                                          color: (isDark
+                                                  ? Colors.white
+                                                  : Colors.black)
+                                              .withValues(alpha: 0.07),
+                                          value: 1,
+                                          title: '',
+                                          radius: 14,
+                                        ),
+                                      ],
+                              ),
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'SPENT',
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              letterSpacing: 0.8,
-                              fontWeight: FontWeight.w700,
-                              color: isDark ? Colors.grey[400] : Colors.grey[500],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    'KSh ${currencyFormat.format(displayTotal)}',
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: isCompact ? 11.5 : 13,
+                                      letterSpacing: -0.3,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'SPENT',
+                                  style: TextStyle(
+                                    fontSize: isCompact ? 8.5 : 9.5,
+                                    letterSpacing: 0.8,
+                                    fontWeight: FontWeight.w700,
+                                    color: isDark ? Colors.grey[400] : Colors.grey[500],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 20),
+                    ),
+                    SizedBox(width: spacing),
 
-                // Category Legends List
-                Expanded(
-                  child: hasSpending
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: widget.breakdown.take(4).map((cat) {
+                    // Category Legends List
+                    Expanded(
+                      child: hasSpending
+                          ? Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: widget.breakdown.take(4).map((cat) {
                             final index = widget.breakdown.indexOf(cat);
                             final color = AppColors.chartPalette[
                                 index % AppColors.chartPalette.length];
@@ -229,11 +243,12 @@ class _SpendingDonutChartState extends State<SpendingDonutChart> {
                             color: isDark ? Colors.grey[500] : Colors.grey[600],
                           ),
                         ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }

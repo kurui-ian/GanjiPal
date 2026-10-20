@@ -49,14 +49,17 @@ class SummaryCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 6),
-            Text(
-              amountText,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.5,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                amountText,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+                maxLines: 1,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
             ),
             if (subtitle != null) ...[
               const SizedBox(height: 2),

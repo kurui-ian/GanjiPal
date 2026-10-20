@@ -135,16 +135,29 @@ class BudgetProgressCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Spent: KSh ${currencyFormat.format(status.spentInShillings)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Spent: KSh ${currencyFormat.format(status.spentInShillings)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                  Text(
-                    'Limit: KSh ${currencyFormat.format(status.limitInShillings)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Limit: KSh ${currencyFormat.format(status.limitInShillings)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
                     ),
                   ),
                 ],

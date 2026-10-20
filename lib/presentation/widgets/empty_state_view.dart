@@ -28,7 +28,8 @@ class EmptyStateView extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,

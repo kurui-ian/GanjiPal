@@ -121,26 +121,36 @@ class TransactionTile extends StatelessWidget {
             const SizedBox(width: 10),
 
             // Amount Column
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  amountString,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: amountColor,
-                  ),
-                ),
-                if (transaction.feeCents > 0) ...[
-                  const SizedBox(height: 2),
-                  Text(
-                    'Fee: KSh ${currencyFormat.format(transaction.feeInShillings)}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      amountString,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: amountColor,
+                      ),
                     ),
                   ),
-                ],
+                  if (transaction.feeCents > 0) ...[
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Fee: KSh ${currencyFormat.format(transaction.feeInShillings)}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 11,
+                          color: isDark ? Colors.grey[500] : Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
                 if (transaction.balanceAfterCents != null) ...[
                   const SizedBox(height: 3),
                   Container(

@@ -155,7 +155,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       const SizedBox(height: 16),
                       SizedBox(
                         height: 140,
-                        child: _DailySpendingBarChart(dailyData: dailySpending),
+                        child: RepaintBoundary(
+                          child: _DailySpendingBarChart(dailyData: dailySpending),
+                        ),
                       ),
                     ],
                   ),
@@ -209,11 +211,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      'KSh ${currencyFormat.format(cat.amountInShillings)} ($percent%)',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
+                                    FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        'KSh ${currencyFormat.format(cat.amountInShillings)} ($percent%)',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
                                   ],

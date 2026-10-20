@@ -51,60 +51,67 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Drag handle
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Header with Amount
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _currentTx.counterpartyName ??
-                          _currentTx.description ??
-                          _currentTx.transactionType.displayName,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
+            // Header with Amount
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _currentTx.counterpartyName ??
+                            _currentTx.description ??
+                            _currentTx.transactionType.displayName,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      dateFormat.format(_currentTx.timestamp),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      const SizedBox(height: 4),
+                      Text(
+                        dateFormat.format(_currentTx.timestamp),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.topRight,
+                  child: Text(
+                    '${isIncome ? "+" : "-"}KSh ${currencyFormat.format(_currentTx.amountInShillings)}',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: amountColor,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              Text(
-                '${isIncome ? "+" : "-"}KSh ${currencyFormat.format(_currentTx.amountInShillings)}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: amountColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
+              ],
+            ),
+            const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 12),
 
@@ -212,7 +219,7 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

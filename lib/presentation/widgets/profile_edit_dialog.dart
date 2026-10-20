@@ -101,10 +101,12 @@ class _ProfileEditBottomSheetState extends State<ProfileEditBottomSheet> {
         24,
         MediaQuery.of(context).viewInsets.bottom + 28,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -269,6 +271,7 @@ class _ProfileEditBottomSheetState extends State<ProfileEditBottomSheet> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

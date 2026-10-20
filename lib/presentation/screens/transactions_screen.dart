@@ -177,30 +177,36 @@ class TransactionsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Latest M-Pesa Balance',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: isDark
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                                fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Latest M-Pesa Balance',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                            Text(
-                              'KSh ${currencyFormat.format(latestWithBalance.balanceAfterCents! / 100.0)}',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: isDark
-                                    ? AppColors.primaryLight
-                                    : AppColors.primary,
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'KSh ${currencyFormat.format(latestWithBalance.balanceAfterCents! / 100.0)}',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: isDark
+                                        ? AppColors.primaryLight
+                                        : AppColors.primary,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        const Spacer(),
+                        const SizedBox(width: 8),
                         Text(
                           DateFormat('MMM d, h:mm a').format(
                             latestWithBalance.timestamp,
@@ -389,14 +395,17 @@ class TransactionsScreen extends StatelessWidget {
                 : null,
           ),
           child: Center(
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? (isDark ? Colors.white : AppColors.lightTextPrimary)
-                    : (isDark ? Colors.grey[400] : Colors.grey[600]),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected
+                      ? (isDark ? Colors.white : AppColors.lightTextPrimary)
+                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                ),
               ),
             ),
           ),

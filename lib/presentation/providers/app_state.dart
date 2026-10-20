@@ -49,6 +49,37 @@ class AppState extends ChangeNotifier {
   String _sortOrder = 'newest'; // newest, oldest, highest, lowest
   String get sortOrder => _sortOrder;
 
+  // --- Memoization Caches for High-Performance 60/120fps UI Rendering ---
+  List<TransactionModel>? _cachedFilteredTransactions;
+  FinancialSummary? _cachedTodaySummary;
+  FinancialSummary? _cachedWeekSummary;
+  FinancialSummary? _cachedMonthSummary;
+  List<BudgetStatus>? _cachedBudgetStatuses;
+  final Map<int, List<CategorySpending>> _cachedPeriodBreakdowns = {};
+  List<CategorySpending>? _cachedMonthlyCategoryBreakdown;
+  TransactionModel? _cachedLatestMpesaBalanceTransaction;
+  bool _hasCheckedLatestMpesaBalance = false;
+  double? _cachedEstimatedBalance;
+  List<MerchantSpending>? _cachedTopMerchants;
+
+  void _invalidateAllCaches() {
+    _cachedFilteredTransactions = null;
+    _cachedTodaySummary = null;
+    _cachedWeekSummary = null;
+    _cachedMonthSummary = null;
+    _cachedBudgetStatuses = null;
+    _cachedPeriodBreakdowns.clear();
+    _cachedMonthlyCategoryBreakdown = null;
+    _cachedLatestMpesaBalanceTransaction = null;
+    _hasCheckedLatestMpesaBalance = false;
+    _cachedEstimatedBalance = null;
+    _cachedTopMerchants = null;
+  }
+
+  void _invalidateFilterCache() {
+    _cachedFilteredTransactions = null;
+  }
+
   AppState({
     TransactionRepository? txRepo,
     CategoryRepository? catRepo,
@@ -65,6 +96,7 @@ class AppState extends ChangeNotifier {
   void _listenToIncomingSms() {
     _smsService.onNewTransaction.listen((tx) {
       _allTransactions.insert(0, tx);
+      _invalidateAllCaches();
       notifyListeners();
     });
   }
@@ -94,6 +126,7 @@ class AppState extends ChangeNotifier {
       _allTransactions = await _txRepo.getAllTransactions();
     } catch (_) {}
 
+    _invalidateAllCaches();
     _isLoading = false;
     notifyListeners();
   }
@@ -117,6 +150,10 @@ class AppState extends ChangeNotifier {
 
   /// Filtered list of transactions based on active search, filters, and sort.
   List<TransactionModel> get filteredTransactions {
+    if (_cachedFilteredTransactions != null) {
+      return _cachedFilteredTransactions!;
+    }
+
     final list = _allTransactions.where((tx) {
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
@@ -170,17 +207,18 @@ class AppState extends ChangeNotifier {
         break;
     }
 
-    return list;
+    return _cachedFilteredTransactions = list;
   }
 
   // --- Real-time Financial Calculations ---
 
   /// Summary for Today (00:00 to 23:59).
   FinancialSummary get todaySummary {
+    if (_cachedTodaySummary != null) return _cachedTodaySummary!;
     final now = DateTime.now();
     final start = DateTime(now.year, now.month, now.day);
     final end = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
-    return FinancialCalculator.calculateSummary(
+    return _cachedTodaySummary = FinancialCalculator.calculateSummary(
       _allTransactions,
       startDate: start,
       endDate: end,
@@ -189,11 +227,12 @@ class AppState extends ChangeNotifier {
 
   /// Summary for This Week (Monday to Sunday).
   FinancialSummary get weekSummary {
+    if (_cachedWeekSummary != null) return _cachedWeekSummary!;
     final bounds = BudgetCalculator.getPeriodBounds(
       BudgetPeriod.weekly,
       DateTime.now(),
     );
-    return FinancialCalculator.calculateSummary(
+    return _cachedWeekSummary = FinancialCalculator.calculateSummary(
       _allTransactions,
       startDate: bounds.start,
       endDate: bounds.end,
@@ -202,11 +241,12 @@ class AppState extends ChangeNotifier {
 
   /// Summary for This Month (1st to last day of month).
   FinancialSummary get monthSummary {
+    if (_cachedMonthSummary != null) return _cachedMonthSummary!;
     final bounds = BudgetCalculator.getPeriodBounds(
       BudgetPeriod.monthly,
       DateTime.now(),
     );
-    return FinancialCalculator.calculateSummary(
+    return _cachedMonthSummary = FinancialCalculator.calculateSummary(
       _allTransactions,
       startDate: bounds.start,
       endDate: bounds.end,
@@ -215,7 +255,8 @@ class AppState extends ChangeNotifier {
 
   /// List of active budget statuses evaluated against current spending.
   List<BudgetStatus> get budgetStatuses {
-    return _budgets
+    if (_cachedBudgetStatuses != null) return _cachedBudgetStatuses!;
+    return _cachedBudgetStatuses = _budgets
         .where((b) => b.isActive)
         .map((b) => BudgetCalculator.evaluateBudget(b, _allTransactions))
         .toList();
@@ -223,11 +264,15 @@ class AppState extends ChangeNotifier {
 
   /// Category breakdown for the active month.
   List<CategorySpending> get monthlyCategoryBreakdown {
+    if (_cachedMonthlyCategoryBreakdown != null) {
+      return _cachedMonthlyCategoryBreakdown!;
+    }
     final bounds = BudgetCalculator.getPeriodBounds(
       BudgetPeriod.monthly,
       DateTime.now(),
     );
-    return FinancialCalculator.calculateCategoryBreakdown(
+    return _cachedMonthlyCategoryBreakdown =
+        FinancialCalculator.calculateCategoryBreakdown(
       _allTransactions,
       startDate: bounds.start,
       endDate: bounds.end,
@@ -236,6 +281,10 @@ class AppState extends ChangeNotifier {
 
   /// Category breakdown dynamically evaluated for period index (0: Today, 1: Week, 2: Month)
   List<CategorySpending> categoryBreakdownForPeriod(int periodIndex) {
+    if (_cachedPeriodBreakdowns.containsKey(periodIndex)) {
+      return _cachedPeriodBreakdowns[periodIndex]!;
+    }
+
     final now = DateTime.now();
     DateTime start;
     DateTime end;
@@ -253,28 +302,35 @@ class AppState extends ChangeNotifier {
       end = bounds.end;
     }
 
-    return FinancialCalculator.calculateCategoryBreakdown(
+    final result = FinancialCalculator.calculateCategoryBreakdown(
       _allTransactions,
       startDate: start,
       endDate: end,
     );
+    _cachedPeriodBreakdowns[periodIndex] = result;
+    return result;
   }
 
   /// Most recent transaction with an explicit M-Pesa account balance recorded.
   TransactionModel? get latestMpesaBalanceTransaction {
+    if (_hasCheckedLatestMpesaBalance) {
+      return _cachedLatestMpesaBalanceTransaction;
+    }
+    _hasCheckedLatestMpesaBalance = true;
     for (final tx in _allTransactions) {
       if (tx.balanceAfterCents != null) {
-        return tx;
+        return _cachedLatestMpesaBalanceTransaction = tx;
       }
     }
-    return null;
+    return _cachedLatestMpesaBalanceTransaction = null;
   }
 
   /// Estimated current wallet balance (explicit M-Pesa balance, or calculated net cash flow)
   double get currentEstimatedBalance {
+    if (_cachedEstimatedBalance != null) return _cachedEstimatedBalance!;
     final latest = latestMpesaBalanceTransaction;
     if (latest != null && latest.balanceAfterCents != null) {
-      return latest.balanceAfterCents! / 100.0;
+      return _cachedEstimatedBalance = latest.balanceAfterCents! / 100.0;
     }
     int total = 0;
     for (final tx in _allTransactions) {
@@ -285,11 +341,12 @@ class AppState extends ChangeNotifier {
         total -= tx.totalOutgoingCents;
       }
     }
-    return total / 100.0;
+    return _cachedEstimatedBalance = total / 100.0;
   }
 
   /// Top merchants for the active month.
   List<MerchantSpending> get topMerchants {
+    if (_cachedTopMerchants != null) return _cachedTopMerchants!;
     final bounds = BudgetCalculator.getPeriodBounds(
       BudgetPeriod.monthly,
       DateTime.now(),
@@ -301,34 +358,39 @@ class AppState extends ChangeNotifier {
               !tx.timestamp.isAfter(bounds.end),
         )
         .toList();
-    return FinancialCalculator.findTopMerchants(txs);
+    return _cachedTopMerchants = FinancialCalculator.findTopMerchants(txs);
   }
 
   // --- Filter Actions ---
 
   void setSearchQuery(String query) {
     _searchQuery = query;
+    _invalidateFilterCache();
     notifyListeners();
   }
 
   void setFilterClassification(FinancialClassification? classification) {
     _filterClassification = classification;
+    _invalidateFilterCache();
     notifyListeners();
   }
 
   void setFilterCategory(String? categoryId) {
     _filterCategoryId = categoryId;
+    _invalidateFilterCache();
     notifyListeners();
   }
 
   void setDateRange(DateTime? start, DateTime? end) {
     _filterStartDate = start;
     _filterEndDate = end;
+    _invalidateFilterCache();
     notifyListeners();
   }
 
   void setSortOrder(String order) {
     _sortOrder = order;
+    _invalidateFilterCache();
     notifyListeners();
   }
 
@@ -339,6 +401,7 @@ class AppState extends ChangeNotifier {
     _filterClassification = null;
     _filterCategoryId = null;
     _sortOrder = 'newest';
+    _invalidateFilterCache();
     notifyListeners();
   }
 
@@ -385,6 +448,7 @@ class AppState extends ChangeNotifier {
     final inserted = await _txRepo.insertTransaction(tx);
     if (inserted) {
       _allTransactions.insert(0, tx);
+      _invalidateAllCaches();
       notifyListeners();
       return true;
     }
@@ -396,6 +460,7 @@ class AppState extends ChangeNotifier {
     final index = _allTransactions.indexWhere((t) => t.id == updated.id);
     if (index != -1) {
       _allTransactions[index] = updated;
+      _invalidateAllCaches();
       notifyListeners();
     }
   }
@@ -403,6 +468,7 @@ class AppState extends ChangeNotifier {
   Future<void> deleteTransaction(String id) async {
     await _txRepo.deleteTransaction(id);
     _allTransactions.removeWhere((t) => t.id == id);
+    _invalidateAllCaches();
     notifyListeners();
   }
 
@@ -416,12 +482,14 @@ class AppState extends ChangeNotifier {
     } else {
       _budgets.add(budget);
     }
+    _invalidateAllCaches();
     notifyListeners();
   }
 
   Future<void> deleteBudget(String id) async {
     await _budgetRepo.deleteBudget(id);
     _budgets.removeWhere((b) => b.id == id);
+    _invalidateAllCaches();
     notifyListeners();
   }
 
@@ -436,6 +504,7 @@ class AppState extends ChangeNotifier {
       sinceDate: since,
     );
     _allTransactions = await _txRepo.getAllTransactions();
+    _invalidateAllCaches();
     notifyListeners();
     return result;
   }
@@ -456,6 +525,7 @@ class AppState extends ChangeNotifier {
       }
     }
     if (imported > 0) {
+      _invalidateAllCaches();
       notifyListeners();
     }
     return imported;
@@ -491,6 +561,7 @@ class AppState extends ChangeNotifier {
     await DatabaseHelper.instance.clearAllUserData();
     _allTransactions.clear();
     _budgets.clear();
+    _invalidateAllCaches();
     notifyListeners();
   }
 
