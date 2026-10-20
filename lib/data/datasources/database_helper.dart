@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:pesatrack_core/pesatrack_core.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 /// SQLite Database Manager for PesaTrack.
 /// Provides offline-first local persistence, indexes, constraints,
@@ -23,6 +25,9 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    }
     final dbPath = await getDatabasesPath();
     final path = p.join(dbPath, _databaseName);
 

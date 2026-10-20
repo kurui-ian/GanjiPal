@@ -1339,9 +1339,10 @@ class _MonthlyBudgetBottomSheetState extends State<_MonthlyBudgetBottomSheet> {
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

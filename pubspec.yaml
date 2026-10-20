@@ -21,6 +21,7 @@ dependencies:
   file_picker: ^8.0.7
   flutter_local_notifications: ^17.2.1
   permission_handler: ^11.3.1
+  sqflite_common_ffi_web: ^1.2.0
 
 dev_dependencies:
   flutter_test:

@@ -219,10 +219,11 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
               ),
             ],
           ),
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildRow(String label, String value) {
     final theme = Theme.of(context);
