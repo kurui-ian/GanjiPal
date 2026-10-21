@@ -46,3 +46,6 @@ jobs:
 
       - name: Run Flutter Widget & Unit Tests
         run: flutter test --coverage
+
+      - name: Verify Web Bundle Build
+        run: flutter build web --no-tree-shake-icons
