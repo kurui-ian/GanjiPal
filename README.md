@@ -58,7 +58,11 @@ PesaTrack is a personal finance Android application built using Flutter, Dart, S
 
 For detailed guides, please see:
 - 📘 [**Architecture Overview**](docs/ARCHITECTURE.md) — Layered design, domain engine, SQLite schema, and native Android bridges.
+- 🔄 [**Data Ingestion Pipeline**](docs/data_pipeline.md) — End-to-end data processing, precision, and memoization rules.
+- 📩 [**SMS Parsing Specification**](docs/SMS_PARSING_SPEC.md) — Canonical regex patterns, M-Pesa types, and edge cases.
+- 🧪 [**Testing & Verification Guide**](docs/TESTING_GUIDE.md) — Domain unit tests, widget tests, and ADB hardware testing.
 - 🛡️ [**Privacy Manifesto**](docs/PRIVACY.md) — Security guarantees and on-device data safety model.
+- 📜 [**Changelog**](CHANGELOG.md) — Version history, UI responsiveness, and performance optimizations.
 - 🤝 [**Contributing Guide**](CONTRIBUTING.md) — Development setup, test guidelines, and PR procedures.
 
 ```
