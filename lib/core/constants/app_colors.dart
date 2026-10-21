@@ -64,4 +64,10 @@ class AppColors {
   static const Color darkTextPrimary = Color(0xFFF8FAFC);
   static const Color darkTextSecondary = Color(0xFF94A3B8);
   static const Color darkBorder = Color(0xFF26334D);
+
+  // Surface elevation & glowing aura accents
+  static const Color darkCardHighlight = Color(0xFF1E283D);
+  static const Color brandAuraGlow = Color(0x336366F1);
+  static const Color incomeGlow = Color(0x2E10B981);
+  static const Color expenseGlow = Color(0x2EF43F5E);
 }
