@@ -264,8 +264,9 @@ class FinancialCalculator {
     }
 
     for (final tx in transactions) {
-      if (tx.timestamp.isBefore(startDate) || tx.timestamp.isAfter(endDate))
+      if (tx.timestamp.isBefore(startDate) || tx.timestamp.isAfter(endDate)) {
         continue;
+      }
 
       if (tx.classification == FinancialClassification.expense) {
         final day =

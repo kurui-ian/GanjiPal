@@ -116,7 +116,7 @@ void main() {
         updatedAt: now,
       );
 
-      final category = const CategoryModel(
+      const category = CategoryModel(
         id: 'custom_cat',
         name: 'Custom Category',
         iconName: 'star',

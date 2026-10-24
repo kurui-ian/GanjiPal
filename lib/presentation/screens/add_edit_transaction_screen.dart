@@ -101,7 +101,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
+    final dateFormat = DateFormat('MMM d, yyyy â€¢ h:mm a');
 
     return Scaffold(
       appBar: AppBar(
@@ -131,12 +131,14 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                 hintText: '0.00',
               ),
               validator: (val) {
-                if (val == null || val.trim().isEmpty)
+                if (val == null || val.trim().isEmpty) {
                   return 'Please enter an amount';
+                }
                 final clean = val.replaceAll(',', '').trim();
                 final num = double.tryParse(clean);
-                if (num == null || num <= 0)
+                if (num == null || num <= 0) {
                   return 'Enter a valid positive number';
+                }
                 return null;
               },
             ),
