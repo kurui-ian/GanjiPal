@@ -6,6 +6,7 @@ import '../../data/repositories/budget_repository.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../data/repositories/transaction_repository.dart';
 import '../../data/services/sms_import_service.dart';
+import '../widgets/sms_batch_review_card.dart';
 
 class AppState extends ChangeNotifier {
   final TransactionRepository _txRepo;
@@ -92,6 +93,10 @@ class AppState extends ChangeNotifier {
     _listenToIncomingSms();
     loadInitialData();
   }
+
+  TransactionClassifier get classifier => _smsService.classifier;
+  MpesaParser get parser => _smsService.parser;
+  SmsImportService get smsService => _smsService;
 
   void _listenToIncomingSms() {
     _smsService.onNewTransaction.listen((tx) {
@@ -524,6 +529,73 @@ class AppState extends ChangeNotifier {
         }
       }
     }
+    if (imported > 0) {
+      _invalidateAllCaches();
+      notifyListeners();
+    }
+    return imported;
+  }
+
+  /// Commits a user-reviewed batch of extracted SMS items with custom categories.
+  Future<int> commitReviewedBatch(List<SmsBatchReviewItem> items) async {
+    int imported = 0;
+    for (final item in items) {
+      if (!item.isSelected || !item.isValid) continue;
+
+      final parsed = item.parsed;
+      final txTimestamp = parsed.timestamp ?? DateTime.now();
+      final txFingerprint = DeduplicationService.generateFingerprint(
+        mpesaReference: parsed.mpesaReference,
+        amountCents: parsed.amountCents,
+        timestamp: txTimestamp,
+        counterparty: parsed.counterpartyName,
+        type: parsed.transactionType,
+        accountReference: parsed.accountReference,
+      );
+
+      final tx = TransactionModel(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        mpesaReference: parsed.mpesaReference,
+        transactionType: parsed.transactionType,
+        classification: parsed.classification,
+        amountCents: parsed.amountCents,
+        feeCents: parsed.feeCents,
+        currency: 'KES',
+        timestamp: txTimestamp,
+        counterpartyName: parsed.counterpartyName,
+        counterpartyPhone: parsed.counterpartyPhone,
+        accountReference: parsed.accountReference,
+        categoryId: item.categoryId,
+        categoryName: item.categoryName,
+        description: parsed.description ??
+            '${parsed.transactionType.displayName} ${parsed.mpesaReference ?? ""}'.trim(),
+        balanceAfterCents: parsed.balanceAfterCents,
+        fingerprint: txFingerprint,
+        source: TransactionSource.importedSms,
+        reviewStatus: parsed.reviewStatus,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final success = await _txRepo.insertTransaction(tx);
+      if (success) {
+        _allTransactions.insert(0, tx);
+        imported++;
+
+        final smsFp = DeduplicationService.hashRawSms(parsed.rawMessage);
+        await _smsService.smsRepo.recordImport(
+          SmsImportRecord(
+            id: DateTime.now().microsecondsSinceEpoch.toString(),
+            messageFingerprint: smsFp,
+            mpesaReference: parsed.mpesaReference,
+            status: SmsImportStatus.success,
+            importedAt: DateTime.now(),
+            transactionId: tx.id,
+          ),
+        );
+      }
+    }
+
     if (imported > 0) {
       _invalidateAllCaches();
       notifyListeners();

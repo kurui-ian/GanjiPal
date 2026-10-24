@@ -36,6 +36,11 @@ class SmsImportService {
   final StreamController<TransactionModel> _incomingTransactionController =
       StreamController<TransactionModel>.broadcast();
 
+  TransactionClassifier get classifier => _classifier;
+  MpesaParser get parser => _parser;
+  SmsRepository get smsRepo => _smsRepo;
+  TransactionRepository get txRepo => _txRepo;
+
   Stream<TransactionModel> get onNewTransaction =>
       _incomingTransactionController.stream;
 
@@ -168,12 +173,12 @@ class SmsImportService {
 
   /// Parses multiple pasted M-Pesa messages for preview.
   List<ParsedSmsResult> previewPastedBatch(String text) {
-    final List<String> segments = _splitMultipleMessages(text);
+    final List<String> segments = splitMultipleMessages(text);
     return segments.map((s) => _parser.parse(s)).toList();
   }
 
   /// Splits text containing one or multiple pasted SMS messages.
-  List<String> _splitMultipleMessages(String text) {
+  List<String> splitMultipleMessages(String text) {
     // M-Pesa messages typically start with reference e.g. QA12BC34DE Confirmed.
     final matches = RegExp(
       r'([A-Z0-9]{8,12}\s+Confirmed[\s\S]+?)(?=[A-Z0-9]{8,12}\s+Confirmed|$)',
