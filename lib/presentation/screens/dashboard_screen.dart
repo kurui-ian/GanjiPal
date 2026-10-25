@@ -33,9 +33,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good morning,';
-    if (hour < 17) return 'Good afternoon,';
-    return 'Good evening,';
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  IconData _getGreetingIcon() {
+    final hour = DateTime.now().hour;
+    if (hour >= 6 && hour < 17) return Icons.wb_sunny_rounded;
+    if (hour >= 17 && hour < 20) return Icons.wb_twilight_rounded;
+    return Icons.nights_stay_rounded;
   }
 
   String get _selectedPeriodLabel {
@@ -149,8 +156,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Row(
                           children: [
                             Container(
-                              width: 44,
-                              height: 44,
+                              width: 46,
+                              height: 46,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: avatarConfig.gradient,
@@ -158,12 +165,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   end: Alignment.bottomRight,
                                 ),
                                 shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: isDark ? 0.2 : 0.6),
+                                  width: 2,
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: avatarConfig.gradient.first
-                                        .withValues(alpha: 0.28),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
+                                        .withValues(alpha: 0.35),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
@@ -173,7 +184,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 18,
+                                    fontSize: 19,
                                   ),
                                 ),
                               ),
@@ -182,33 +193,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  _getGreeting(),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: isDark
-                                        ? Colors.grey[400]
-                                        : Colors.grey[600],
-                                  ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      _getGreetingIcon(),
+                                      size: 13,
+                                      color: Colors.amber[600],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getGreeting(),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.2,
+                                        color: isDark
+                                            ? Colors.grey[400]
+                                            : Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                                const SizedBox(height: 2),
                                 Row(
                                   children: [
                                     Text(
                                       '${state.userName} 👋',
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 19,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: -0.4,
                                       ),
                                     ),
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.edit_outlined,
-                                      size: 14,
-                                      color: isDark
-                                          ? Colors.grey[500]
-                                          : Colors.grey[400],
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.all(3.5),
+                                      decoration: BoxDecoration(
+                                        color: (isDark ? Colors.white : Colors.black)
+                                            .withValues(alpha: 0.06),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.edit_rounded,
+                                        size: 12,
+                                        color: isDark
+                                            ? Colors.grey[400]
+                                            : Colors.grey[500],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -219,74 +250,114 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       Row(
                         children: [
-                          IconButton(
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: (isDark ? Colors.white : Colors.black)
-                                    .withValues(alpha: 0.05),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.sms_outlined,
-                                size: 20,
-                              ),
-                            ),
-                            tooltip: 'Import SMS',
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      SmsImportScreen(appState: state),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(width: 4),
-                          IconButton(
-                            icon: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: (isDark ? Colors.white : Colors.black)
-                                    .withValues(alpha: 0.05),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                size: 20,
-                              ),
-                            ),
-                            tooltip: 'Add Transaction',
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => AddEditTransactionScreen(
-                                    appState: state,
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        SmsImportScreen(appState: state),
                                   ),
+                                );
+                              },
+                              child: Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: (isDark ? AppColors.darkSurfaceVariant : Colors.white),
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                                    width: 1.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
+                                child: Icon(
+                                  Icons.mark_email_unread_rounded,
+                                  size: 19,
+                                  color: isDark ? AppColors.primaryLight : AppColors.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => AddEditTransactionScreen(
+                                      appState: state,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF6366F1),
+                                      Color(0xFF4F46E5),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withValues(alpha: 0.35),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.add_rounded,
+                                  size: 22,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
                   const SizedBox(height: 20),
-
                   // Hero Money Tracing Card (Net Cash Flow is the Hero, Balance is secondary)
                   Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: AppColors.heroGradient,
+                        colors: [
+                          Color(0xFF4F46E5),
+                          Color(0xFF6366F1),
+                          Color(0xFF7C3AED),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(26),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.22),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.28),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
+                          color: const Color(0xFF4F46E5).withValues(alpha: 0.38),
+                          blurRadius: 22,
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
@@ -298,82 +369,184 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(
-                                  Icons.query_stats_rounded,
-                                  color: Colors.white70,
-                                  size: 15,
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.18),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.auto_graph_rounded,
+                                    color: Colors.white,
+                                    size: 13,
+                                  ),
                                 ),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Net Money Flow',
+                                const SizedBox(width: 7),
+                                const Text(
+                                  'NET MONEY FLOW',
                                   style: TextStyle(
                                     color: Colors.white70,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.8,
                                   ),
                                 ),
                               ],
                             ),
                             // Secondary Account Balance Pill
                             Flexible(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.16),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.account_balance_wallet_rounded,
-                                      color: Colors.white,
-                                      size: 12,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(14),
+                                  onTap: () {
+                                    setState(() {
+                                      _isBalanceHidden = !_isBalanceHidden;
+                                    });
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
                                     ),
-                                    const SizedBox(width: 5),
-                                    Flexible(
-                                      child: FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          _isBalanceHidden
-                                              ? 'Bal: ••••'
-                                              : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.16),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: Colors.white.withValues(alpha: 0.25),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.account_balance_wallet_rounded,
+                                          color: Colors.white,
+                                          size: 13,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Flexible(
+                                          child: FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              _isBalanceHidden
+                                                  ? 'Bal: ••••'
+                                                  : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                        const SizedBox(width: 6),
+                                        Icon(
+                                          _isBalanceHidden
+                                              ? Icons.visibility_off_rounded
+                                              : Icons.visibility_rounded,
+                                          color: Colors.white.withValues(alpha: 0.8),
+                                          size: 13,
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 6),
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          _isBalanceHidden = !_isBalanceHidden;
-                                        });
-                                      },
-                                      child: Icon(
-                                        _isBalanceHidden
-                                            ? Icons.visibility_off_outlined
-                                            : Icons.visibility_outlined,
-                                        color: Colors.white70,
-                                        size: 14,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 14),
+
+                        // Status Tag (Inflow vs Outflow)
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: (summary.netCashFlowCents >= 0
+                                        ? const Color(0xFF10B981)
+                                        : const Color(0xFFF43F5E))
+                                    .withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: (summary.netCashFlowCents >= 0
+                                          ? const Color(0xFF34D399)
+                                          : const Color(0xFFFB7185))
+                                      .withValues(alpha: 0.4),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    summary.netCashFlowCents >= 0
+                                        ? Icons.arrow_upward_rounded
+                                        : Icons.arrow_downward_rounded,
+                                    size: 11,
+                                    color: summary.netCashFlowCents >= 0
+                                        ? const Color(0xFF6EE7B7)
+                                        : const Color(0xFFFFCCD5),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    summary.netCashFlowCents >= 0
+                                        ? 'Net Inflow'
+                                        : 'Net Outflow',
+                                    style: TextStyle(
+                                      color: summary.netCashFlowCents >= 0
+                                          ? const Color(0xFF6EE7B7)
+                                          : const Color(0xFFFFCCD5),
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Activity Badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.history_rounded,
+                                    size: 11,
+                                    color: Colors.white70,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${summary.transactionCount} transactions $_selectedPeriodLabel',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
 
                         // Prominent Net Cash Flow Display
                         _isBalanceHidden
@@ -381,9 +554,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 '••••••••••',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 30,
+                                  fontSize: 34,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.6,
+                                  letterSpacing: -0.8,
                                 ),
                               )
                             : AnimatedAmountText(
@@ -392,130 +565,142 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 style: TextStyle(
                                   color: summary.netCashFlowCents >= 0
                                       ? Colors.white
-                                      : const Color(0xFFFFD1D9),
-                                  fontSize: 30,
+                                      : const Color(0xFFFFF0F3),
+                                  fontSize: 34,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.6,
+                                  letterSpacing: -0.8,
                                 ),
                               ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 16),
 
-                        // Activity Badge
+                        // Income vs Outflow Frosted Glass Metric Row
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
+                            horizontal: 14,
+                            vertical: 12,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            '${summary.transactionCount} transactions tracked $_selectedPeriodLabel',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                            color: Colors.black.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.12),
+                              width: 1,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Divider(color: Colors.white24, height: 1),
-                        const SizedBox(height: 14),
-
-                        // Income vs Outflow Sub-Metrics (Fully Responsive & Overflow-Proof)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.15),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.arrow_downward_rounded,
-                                      color: Colors.white,
-                                      size: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'Money In',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 11,
-                                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF10B981)
+                                            .withValues(alpha: 0.25),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFF34D399)
+                                              .withValues(alpha: 0.5),
+                                          width: 1,
                                         ),
-                                        AnimatedAmountText(
-                                          amount: summary.incomeInShillings,
-                                          prefix: '+KSh ',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
+                                      ),
+                                      child: const Icon(
+                                        Icons.arrow_downward_rounded,
+                                        color: Color(0xFF6EE7B7),
+                                        size: 15,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Money In',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 1),
+                                          AnimatedAmountText(
+                                            amount: summary.incomeInShillings,
+                                            prefix: '+KSh ',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 13.5,
+                                              letterSpacing: -0.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.15),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.arrow_upward_rounded,
-                                      color: Colors.white,
-                                      size: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
-                                      children: [
-                                        const Text(
-                                          'Money Out',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 11,
-                                          ),
-                                        ),
-                                        AnimatedAmountText(
-                                          amount: summary.totalOutgoingInShillings,
-                                          prefix: '-KSh ',
-                                          alignment: Alignment.centerRight,
-                                          textAlign: TextAlign.right,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                              Container(
+                                width: 1,
+                                height: 32,
+                                color: Colors.white.withValues(alpha: 0.16),
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF43F5E)
+                                            .withValues(alpha: 0.25),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: const Color(0xFFFB7185)
+                                              .withValues(alpha: 0.5),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.arrow_upward_rounded,
+                                        color: Color(0xFFFFCCD5),
+                                        size: 15,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'Money Out',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 10.5,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.3,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 1),
+                                          AnimatedAmountText(
+                                            amount: summary.totalOutgoingInShillings,
+                                            prefix: '-KSh ',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 13.5,
+                                              letterSpacing: -0.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -533,7 +718,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               'KSh ${currencyFormat.format(summary.feesInShillings)}',
                           subtitle: 'Safaricom fees',
                           icon: Icons.receipt_long_rounded,
-                          iconColor: Colors.blueGrey,
+                          iconColor: const Color(0xFF64748B),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -563,7 +748,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ],
                   ),
                   const SizedBox(height: 18),
-
                   // Primary Monthly Budget Card (Tracks monthly spending limit)
                   Card(
                     child: InkWell(
@@ -1030,14 +1214,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? AppColors.darkSurface : Colors.white)
+                ? (isDark ? AppColors.darkSurfaceVariant : Colors.white)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
+            border: isSelected
+                ? Border.all(
+                    color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                    width: 1,
+                  )
+                : null,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 6,
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                      blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ]
@@ -1070,44 +1260,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: isDark ? 0.2 : 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(icon, color: iconColor, size: 16),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 2),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                amount,
-                style: const TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.3,
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 11.0, vertical: 12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6.5),
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: isDark ? 0.22 : 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(icon, color: iconColor, size: 15),
+                    ),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: iconColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
                 ),
-                maxLines: 1,
-              ),
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.1,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 3),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    amount,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                    ),
+                    maxLines: 1,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Colors.grey[500] : Colors.grey[400],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
