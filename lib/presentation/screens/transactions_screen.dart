@@ -347,6 +347,7 @@ class TransactionsScreen extends StatelessWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton(
+            heroTag: 'fab_transactions',
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 3,

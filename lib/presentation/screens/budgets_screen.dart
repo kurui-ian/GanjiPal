@@ -238,6 +238,7 @@ class BudgetsScreen extends StatelessWidget {
                   ],
                 ),
           floatingActionButton: FloatingActionButton.extended(
+            heroTag: 'fab_budgets',
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             elevation: 3,
