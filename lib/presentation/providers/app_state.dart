@@ -118,7 +118,8 @@ class AppState extends ChangeNotifier {
       // Load profile preferences
       final savedName = await DatabaseHelper.instance.getPreference('user_name');
       if (savedName != null && savedName.trim().isNotEmpty) {
-        _userName = savedName.trim();
+        final clean = savedName.trim();
+        _userName = clean.contains('ð') ? 'Kurui' : clean;
       }
       final savedAvatar =
           await DatabaseHelper.instance.getPreference('avatar_index');
