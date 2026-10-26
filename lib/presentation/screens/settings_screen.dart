@@ -93,12 +93,14 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       Divider(height: 1),
                       RadioListTile<ThemeMode>(
-                        title: Text('Light Theme'),
+                        title: Text('Warm Ivory (Light Theme)'),
+                        subtitle: Text('Natural, calm daytime appearance'),
                         value: ThemeMode.light,
                       ),
                       Divider(height: 1),
                       RadioListTile<ThemeMode>(
-                        title: Text('Dark Theme'),
+                        title: Text('Deep Charcoal (Dark Theme)'),
+                        subtitle: Text('Restful forest-slate night appearance'),
                         value: ThemeMode.dark,
                       ),
                     ],
@@ -113,9 +115,9 @@ class SettingsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.table_chart_outlined,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.sage : AppColors.primary,
                       ),
                       title: const Text('Export to CSV'),
                       subtitle: const Text(
@@ -126,9 +128,9 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.backup_outlined,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.sage : AppColors.primary,
                       ),
                       title: const Text('Create JSON Backup'),
                       subtitle: const Text(
@@ -139,9 +141,9 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.restore_outlined,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.sage : AppColors.primary,
                       ),
                       title: const Text('Restore from Backup'),
                       subtitle: const Text('Import verified JSON backup file'),
@@ -150,9 +152,9 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      leading: const Icon(
+                      leading: Icon(
                         Icons.data_exploration_outlined,
-                        color: AppColors.primary,
+                        color: isDark ? AppColors.sage : AppColors.primary,
                       ),
                       title: const Text('Seed Sample Transactions'),
                       subtitle: const Text(
@@ -176,9 +178,9 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const Icon(
-                            Icons.lock_outline,
-                            color: AppColors.primary,
+                          Icon(
+                            Icons.shield_outlined,
+                            color: isDark ? AppColors.sage : AppColors.primary,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -197,7 +199,7 @@ class SettingsScreen extends StatelessWidget {
                         '• Deduplication is performed deterministically using local SHA-256 hashing.',
                         style: theme.textTheme.bodySmall?.copyWith(
                           height: 1.5,
-                          color: isDark ? Colors.grey[400] : Colors.grey[700],
+                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                         ),
                       ),
                     ],
@@ -236,12 +238,15 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall
-            ?.copyWith(fontWeight: FontWeight.bold, color: AppColors.primary),
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: isDark ? AppColors.sage : AppColors.primary,
+            ),
       ),
     );
   }

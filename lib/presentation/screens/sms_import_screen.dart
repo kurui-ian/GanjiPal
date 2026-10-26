@@ -116,14 +116,17 @@ class _SmsImportScreenState extends State<SmsImportScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('M-Pesa SMS Ingestion'),
         bottom: TabBar(
           controller: _tabController,
-          labelColor: AppColors.primary,
-          unselectedLabelColor: Colors.grey,
-          indicatorColor: AppColors.primary,
+          labelColor: isDark ? AppColors.sage : AppColors.primary,
+          unselectedLabelColor: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          indicatorColor: isDark ? AppColors.sage : AppColors.primary,
           tabs: const [
             Tab(text: 'Device Inbox'),
             Tab(text: 'Manual Paste'),
@@ -227,8 +230,8 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                       ),
                       decoration: BoxDecoration(
                         color: isGranted
-                            ? Colors.green.withValues(alpha: 0.15)
-                            : Colors.amber.withValues(alpha: 0.15),
+                            ? AppColors.income.withValues(alpha: 0.15)
+                            : AppColors.warning.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -237,8 +240,8 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: isGranted
-                              ? Colors.green[800]
-                              : Colors.amber[900],
+                              ? AppColors.income
+                              : AppColors.warning,
                         ),
                       ),
                     ),

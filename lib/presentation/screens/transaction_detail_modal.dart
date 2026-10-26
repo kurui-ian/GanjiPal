@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:pesatrack_core/pesatrack_core.dart';
 
@@ -119,7 +120,12 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
           _buildRow('Transaction Type', _currentTx.transactionType.displayName),
           _buildRow('Classification', _currentTx.classification.displayName),
           if (_currentTx.mpesaReference != null)
-            _buildRow('M-Pesa Reference', _currentTx.mpesaReference!),
+            _buildRow(
+              'M-Pesa Reference',
+              _currentTx.mpesaReference!,
+              isMonospace: true,
+              isCopyable: true,
+            ),
           if (_currentTx.feeCents > 0)
             _buildRow(
               'Transaction Fee',
@@ -225,27 +231,65 @@ class _TransactionDetailModalState extends State<TransactionDetailModal> {
   );
 }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildRow(
+    String label,
+    String value, {
+    bool isMonospace = false,
+    bool isCopyable = false,
+  }) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    Widget valueWidget = Text(
+      value,
+      style: theme.textTheme.bodySmall?.copyWith(
+        fontWeight: FontWeight.w600,
+        fontFamily: isMonospace ? 'monospace' : null,
+      ),
+    );
+
+    if (isCopyable) {
+      valueWidget = InkWell(
+        borderRadius: BorderRadius.circular(4),
+        onTap: () {
+          Clipboard.setData(ClipboardData(text: value));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Copied $value to clipboard'),
+              duration: const Duration(seconds: 1),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              valueWidget,
+              const SizedBox(width: 4),
+              Icon(Icons.copy_rounded, size: 12, color: theme.hintColor),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),
-          Text(
-            value,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          valueWidget,
         ],
       ),
     );

@@ -218,7 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      '${state.userName} 👋',
+                                      '${state.userName} ðŸ‘‹',
                                       style: const TextStyle(
                                         fontSize: 19,
                                         fontWeight: FontWeight.w800,
@@ -308,8 +308,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
-                                      Color(0xFF6366F1),
-                                      Color(0xFF4F46E5),
+                                      AppColors.primaryLight,
+                                      AppColors.primary,
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -317,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   borderRadius: BorderRadius.circular(14),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppColors.primary.withValues(alpha: 0.35),
+                                      color: AppColors.primary.withValues(alpha: 0.25),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),
@@ -340,24 +340,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF4F46E5),
-                          Color(0xFF6366F1),
-                          Color(0xFF7C3AED),
-                        ],
+                        colors: AppColors.heroGradient,
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.22),
-                        width: 1.2,
+                        color: Colors.white.withValues(alpha: 0.16),
+                        width: 1.0,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF4F46E5).withValues(alpha: 0.38),
-                          blurRadius: 22,
-                          offset: const Offset(0, 10),
+                          color: AppColors.primaryDark.withValues(alpha: 0.3),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -374,7 +370,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(5),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.18),
+                                    color: Colors.white.withValues(alpha: 0.16),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
@@ -385,7 +381,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ),
                                 const SizedBox(width: 7),
                                 const Text(
-                                  'NET MONEY FLOW',
+                                  'NET CASH FLOW',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 11,
@@ -412,10 +408,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       vertical: 5,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.16),
+                                      color: Colors.white.withValues(alpha: 0.14),
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(
-                                        color: Colors.white.withValues(alpha: 0.25),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         width: 1,
                                       ),
                                     ),
@@ -434,7 +430,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             alignment: Alignment.centerLeft,
                                             child: Text(
                                               _isBalanceHidden
-                                                  ? 'Bal: ••••'
+                                                  ? 'Bal: â€¢â€¢â€¢â€¢'
                                                   : 'Bal: KSh ${currencyFormat.format(state.currentEstimatedBalance)}',
                                               style: const TextStyle(
                                                 color: Colors.white,
@@ -472,15 +468,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               decoration: BoxDecoration(
                                 color: (summary.netCashFlowCents >= 0
-                                        ? const Color(0xFF10B981)
-                                        : const Color(0xFFF43F5E))
-                                    .withValues(alpha: 0.25),
+                                        ? AppColors.income
+                                        : AppColors.expense)
+                                    .withValues(alpha: 0.28),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color: (summary.netCashFlowCents >= 0
-                                          ? const Color(0xFF34D399)
-                                          : const Color(0xFFFB7185))
-                                      .withValues(alpha: 0.4),
+                                          ? AppColors.sage
+                                          : AppColors.expenseLight)
+                                      .withValues(alpha: 0.45),
                                   width: 1,
                                 ),
                               ),
@@ -493,7 +489,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         : Icons.arrow_downward_rounded,
                                     size: 11,
                                     color: summary.netCashFlowCents >= 0
-                                        ? const Color(0xFF6EE7B7)
+                                        ? AppColors.sageLight
                                         : const Color(0xFFFFCCD5),
                                   ),
                                   const SizedBox(width: 4),
@@ -503,7 +499,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         : 'Net Outflow',
                                     style: TextStyle(
                                       color: summary.netCashFlowCents >= 0
-                                          ? const Color(0xFF6EE7B7)
+                                          ? AppColors.sageLight
                                           : const Color(0xFFFFCCD5),
                                       fontSize: 10.5,
                                       fontWeight: FontWeight.w700,
@@ -521,7 +517,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 vertical: 3.5,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.15),
+                                color: Colors.white.withValues(alpha: 0.14),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
@@ -551,7 +547,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         // Prominent Net Cash Flow Display
                         _isBalanceHidden
                             ? const Text(
-                                '••••••••••',
+                                'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 34,
@@ -573,7 +569,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                         const SizedBox(height: 16),
 
-                        // Income vs Outflow Frosted Glass Metric Row
+                        // Income vs Outflow Frosted Metric Row
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -595,18 +591,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(7),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF10B981)
-                                            .withValues(alpha: 0.25),
+                                        color: AppColors.income
+                                            .withValues(alpha: 0.35),
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: const Color(0xFF34D399)
+                                          color: AppColors.sage
                                               .withValues(alpha: 0.5),
                                           width: 1,
                                         ),
                                       ),
                                       child: const Icon(
                                         Icons.arrow_downward_rounded,
-                                        color: Color(0xFF6EE7B7),
+                                        color: AppColors.sageLight,
                                         size: 15,
                                       ),
                                     ),
@@ -653,11 +649,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(7),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFF43F5E)
-                                            .withValues(alpha: 0.25),
+                                        color: AppColors.expense
+                                            .withValues(alpha: 0.35),
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: const Color(0xFFFB7185)
+                                          color: AppColors.expenseLight
                                               .withValues(alpha: 0.5),
                                           width: 1,
                                         ),
@@ -771,7 +767,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: (primaryMonthlyBudget.isOverBudget
                                                   ? AppColors.expense
                                                   : primaryMonthlyBudget.isWarning
-                                                      ? Colors.amber[800]!
+                                                      ? AppColors.warning
                                                       : AppColors.primary)
                                               .withValues(
                                             alpha: isDark ? 0.25 : 0.12,
@@ -784,7 +780,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: primaryMonthlyBudget.isOverBudget
                                               ? AppColors.expense
                                               : primaryMonthlyBudget.isWarning
-                                                  ? Colors.amber[800]
+                                                  ? AppColors.warning
                                                   : AppColors.primary,
                                           size: 18,
                                         ),
@@ -830,7 +826,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           color: (primaryMonthlyBudget.isOverBudget
                                                   ? AppColors.expense
                                                   : primaryMonthlyBudget.isWarning
-                                                      ? Colors.amber[800]!
+                                                      ? AppColors.warning
                                                       : AppColors.income)
                                               .withValues(
                                             alpha: isDark ? 0.2 : 0.12,
@@ -852,7 +848,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         .isOverBudget
                                                     ? AppColors.expense
                                                     : primaryMonthlyBudget.isWarning
-                                                        ? Colors.amber[800]
+                                                        ? AppColors.warning
                                                         : AppColors.income,
                                               ),
                                             ),
@@ -864,7 +860,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       .isOverBudget
                                                   ? AppColors.expense
                                                   : primaryMonthlyBudget.isWarning
-                                                      ? Colors.amber[800]
+                                                      ? AppColors.warning
                                                       : AppColors.income,
                                             ),
                                           ],
@@ -889,7 +885,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         primaryMonthlyBudget.isOverBudget
                                             ? AppColors.expense
                                             : primaryMonthlyBudget.isWarning
-                                                ? Colors.amber[800]!
+                                                ? AppColors.warning
                                                 : AppColors.income,
                                       ),
                                     ),
@@ -1087,7 +1083,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         color: bs.isOverBudget
                                             ? AppColors.expense
                                             : bs.isWarning
-                                            ? Colors.amber[800]
+                                            ? AppColors.warning
                                             : AppColors.income,
                                       ),
                                     ),
@@ -1102,8 +1098,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     color: bs.isOverBudget
                                         ? AppColors.expense
                                         : bs.isWarning
-                                        ? Colors.amber[800]
+                                        ? AppColors.warning
                                         : AppColors.income,
+
                                     backgroundColor: (isDark
                                             ? Colors.white
                                             : Colors.black)

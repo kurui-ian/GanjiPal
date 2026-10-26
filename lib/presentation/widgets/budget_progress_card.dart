@@ -24,7 +24,7 @@ class BudgetProgressCard extends StatelessWidget {
     if (isOver) {
       progressColor = AppColors.expense;
     } else if (isWarn) {
-      progressColor = Colors.amber[700]!;
+      progressColor = AppColors.warning;
     } else {
       progressColor = AppColors.income;
     }

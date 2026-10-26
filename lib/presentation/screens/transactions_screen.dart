@@ -382,13 +382,19 @@ class TransactionsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? AppColors.darkSurface : Colors.white)
+                ? (isDark ? AppColors.darkSurfaceVariant : Colors.white)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
+            border: isSelected
+                ? Border.all(
+                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    width: 1.0,
+                  )
+                : null,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
+                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -404,7 +410,7 @@ class TransactionsScreen extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   color: isSelected
-                      ? (isDark ? Colors.white : AppColors.lightTextPrimary)
+                      ? (isDark ? AppColors.sage : AppColors.primary)
                       : (isDark ? Colors.grey[400] : Colors.grey[600]),
                 ),
               ),

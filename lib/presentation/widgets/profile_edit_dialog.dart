@@ -18,28 +18,28 @@ class AvatarConfig {
 class ProfileAvatarHelper {
   static const List<AvatarConfig> presets = [
     AvatarConfig(
-      label: 'Electric Indigo',
-      gradient: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+      label: 'Kenyan Forest',
+      gradient: [Color(0xFF1E4D38), Color(0xFF2D6A4F)],
       icon: Icons.person_rounded,
     ),
     AvatarConfig(
-      label: 'Emerald Mint',
-      gradient: [Color(0xFF10B981), Color(0xFF059669)],
-      icon: Icons.savings_rounded,
+      label: 'Muted Sage',
+      gradient: [Color(0xFF40916C), Color(0xFF52B788)],
+      icon: Icons.eco_rounded,
     ),
     AvatarConfig(
       label: 'Warm Amber',
-      gradient: [Color(0xFFF59E0B), Color(0xFFD97706)],
+      gradient: [Color(0xFFD97706), Color(0xFFB45309)],
+      icon: Icons.wb_sunny_rounded,
+    ),
+    AvatarConfig(
+      label: 'Terracotta',
+      gradient: [Color(0xFFC05621), Color(0xFF9C4221)],
       icon: Icons.local_fire_department_rounded,
     ),
     AvatarConfig(
-      label: 'Sunset Coral',
-      gradient: [Color(0xFFF43F5E), Color(0xFFE11D48)],
-      icon: Icons.favorite_rounded,
-    ),
-    AvatarConfig(
-      label: 'Ocean Cyan',
-      gradient: [Color(0xFF0EA5E9), Color(0xFF0284C7)],
+      label: 'Slate Navy',
+      gradient: [Color(0xFF2B6CB0), Color(0xFF1A365D)],
       icon: Icons.shield_rounded,
     ),
   ];

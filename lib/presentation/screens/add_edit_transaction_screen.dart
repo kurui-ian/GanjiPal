@@ -101,7 +101,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final dateFormat = DateFormat('MMM d, yyyy â€¢ h:mm a');
+    final dateFormat = DateFormat('MMM d, yyyy • h:mm a');
 
     return Scaffold(
       appBar: AppBar(

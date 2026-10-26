@@ -142,13 +142,13 @@ class _SplashScreenState extends State<SplashScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF6366F1), Color(0xFF10B981)],
+                              colors: [AppColors.primaryDark, AppColors.primary, AppColors.sage],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6366F1).withValues(
+                                color: AppColors.primary.withValues(
                                   alpha: isDark ? 0.45 : 0.28,
                                 ),
                                 blurRadius: 32,
@@ -156,7 +156,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 offset: const Offset(0, 10),
                               ),
                               BoxShadow(
-                                color: const Color(0xFF10B981).withValues(
+                                color: AppColors.sage.withValues(
                                   alpha: isDark ? 0.35 : 0.2,
                                 ),
                                 blurRadius: 24,
@@ -173,7 +173,7 @@ class _SplashScreenState extends State<SplashScreen>
                                 shape: BoxShape.circle,
                                 color: isDark
                                     ? AppColors.darkSurface
-                                    : Colors.white,
+                                    : AppColors.lightSurface,
                               ),
                               child: const Center(
                                 child: Icon(
