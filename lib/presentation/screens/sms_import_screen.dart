@@ -125,7 +125,9 @@ class _SmsImportScreenState extends State<SmsImportScreen>
         bottom: TabBar(
           controller: _tabController,
           labelColor: isDark ? AppColors.sage : AppColors.primary,
-          unselectedLabelColor: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+          unselectedLabelColor: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
           indicatorColor: isDark ? AppColors.sage : AppColors.primary,
           tabs: const [
             Tab(text: 'Device Inbox'),
@@ -148,180 +150,234 @@ class _SmsImportScreenState extends State<SmsImportScreen>
   // --- TAB 1: DEVICE INBOX ---
 
   Widget _buildInboxTab(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isGranted = _smsPermission.isGranted;
 
     return ListView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       children: [
         // Privacy Notice Card
-        Card(
-          color: AppColors.primary.withValues(alpha: 0.08),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.shield_outlined,
-                  color: AppColors.primary,
-                  size: 28,
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '100% Offline & Private',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'GanjiPal parses M-Pesa confirmation SMS entirely on your device. '
-                        'No message content or transaction details are ever sent to remote servers or third parties.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? AppColors.darkSurfaceBorder
+                  : AppColors.lightBorder,
+              width: 0.75,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-
-        // Permission Card
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.lock_outline,
+                color: isDark ? AppColors.sage : AppColors.primary,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        'SMS Access Permission',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                    Text(
+                      '100% On-Device & Private',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.5,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isGranted
-                            ? AppColors.income.withValues(alpha: 0.15)
-                            : AppColors.warning.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        isGranted ? 'Enabled' : 'Disabled',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: isGranted
-                              ? AppColors.income
-                              : AppColors.warning,
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'GanjiPal parses M-Pesa receipts entirely on your device using local regex rules. '
+                      'No message text or transaction data is ever transmitted across the network.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.4,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  isGranted
-                      ? 'Automatic SMS detection is active. New M-Pesa receipts will be captured as they arrive.'
-                      : 'Permission is needed to read confirmation SMS from Safaricom M-Pesa.',
-                  style: theme.textTheme.bodySmall,
-                ),
-                const SizedBox(height: 14),
-                if (!isGranted)
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.security, size: 18),
-                      label: const Text('Grant SMS Permission'),
-                      onPressed: _requestPermission,
-                    ),
-                  ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
 
-        // Historical Import Card
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+        // Permission Card
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? AppColors.darkSurfaceBorder
+                  : AppColors.lightBorder,
+              width: 0.75,
+            ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Import Past M-Pesa Messages',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'SMS Access Permission',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isGranted
+                          ? (isDark ? AppColors.sage : AppColors.primary)
+                              .withValues(alpha: 0.15)
+                          : AppColors.warning.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      isGranted ? 'Enabled' : 'Disabled',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: isGranted
+                            ? (isDark ? AppColors.sage : AppColors.primary)
+                            : AppColors.warning,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                isGranted
+                    ? 'Automatic SMS detection is active. New M-Pesa receipts will be captured on arrival.'
+                    : 'Permission is needed to read confirmation SMS from Safaricom M-Pesa.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
+                ),
+              ),
+              if (!isGranted) ...[
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.security, size: 16),
+                    label: const Text('Grant SMS Permission'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: _requestPermission,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  'Scans your inbox for past confirmation messages, extracts financial records, and skips duplicates automatically.',
-                  style: theme.textTheme.bodySmall,
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
+
+        // Historical Import Card
+        Container(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark
+                  ? AppColors.darkSurfaceBorder
+                  : AppColors.lightBorder,
+              width: 0.75,
+            ),
+          ),
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Import Past M-Pesa Messages',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
-                const SizedBox(height: 16),
-                _isImporting
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Column(
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(height: 8),
-                              Text('Scanning inbox and parsing messages...'),
-                            ],
-                          ),
-                        ),
-                      )
-                    : SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          icon: const Icon(Icons.download, size: 18),
-                          label: const Text('Scan & Import Device SMS'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Scans your device inbox for past confirmation messages, extracts financial records, and skips duplicates automatically.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
+                ),
+              ),
+              const SizedBox(height: 14),
+              _isImporting
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          ),
-                          onPressed: _runInboxImport,
+                            SizedBox(height: 10),
+                            Text(
+                              'Scanning inbox and parsing messages...',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
                         ),
                       ),
-              ],
-            ),
+                    )
+                  : SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        icon: const Icon(Icons.download, size: 16),
+                        label: const Text('Scan & Import Device SMS'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: _runInboxImport,
+                      ),
+                    ),
+            ],
           ),
         ),
       ],
@@ -339,9 +395,6 @@ class _SmsImportScreenState extends State<SmsImportScreen>
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
           title: const Text('Import Complete'),
           content: SingleChildScrollView(
             child: Column(
@@ -398,28 +451,39 @@ class _SmsImportScreenState extends State<SmsImportScreen>
         _reviewItems.every((i) => !i.isValid || i.isSelected);
 
     return ListView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       children: [
         // Input Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Paste M-Pesa SMS',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14.5,
+                color: isDark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
             ),
             TextButton.icon(
               onPressed: _pasteFromClipboard,
-              icon: const Icon(Icons.content_paste_rounded, size: 16),
+              icon: const Icon(Icons.content_paste_outlined, size: 14),
               label: const Text('Paste Clipboard', style: TextStyle(fontSize: 12)),
             ),
           ],
         ),
 
         const SizedBox(height: 4),
-        const Text(
-          'Paste single or multiple M-Pesa SMS messages below. Review amounts, counterparties, and categories before committing.',
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+        Text(
+          'Paste single or multiple M-Pesa confirmation SMS messages below. Review amounts and categories before committing.',
+          style: TextStyle(
+            fontSize: 12,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
+          ),
         ),
 
         const SizedBox(height: 10),
@@ -434,7 +498,9 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: theme.hintColor,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               ..._samples.entries.map((entry) {
@@ -467,16 +533,20 @@ class _SmsImportScreenState extends State<SmsImportScreen>
               color: isDark ? Colors.grey[600] : Colors.grey[400],
             ),
             filled: true,
-            fillColor: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
+            fillColor:
+                (isDark ? Colors.white : Colors.black).withValues(alpha: 0.03),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
-                color: theme.dividerColor.withValues(alpha: 0.2),
+                color: isDark
+                    ? AppColors.darkSurfaceBorder
+                    : AppColors.lightBorder,
+                width: 0.75,
               ),
             ),
             suffixIcon: _pasteController.text.isNotEmpty
                 ? IconButton(
-                    icon: const Icon(Icons.clear, size: 18),
+                    icon: const Icon(Icons.clear, size: 16),
                     onPressed: () {
                       _pasteController.clear();
                       setState(() {
@@ -502,13 +572,13 @@ class _SmsImportScreenState extends State<SmsImportScreen>
           children: [
             Expanded(
               child: FilledButton.icon(
-                icon: const Icon(Icons.auto_awesome, size: 16),
+                icon: const Icon(Icons.check, size: 16),
                 label: const Text('Parse & Preview'),
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: _previewPastedText,
@@ -522,7 +592,7 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
                 onPressed: () {
@@ -544,10 +614,13 @@ class _SmsImportScreenState extends State<SmsImportScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
+              color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+              borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.2),
+                color: isDark
+                    ? AppColors.darkSurfaceBorder
+                    : AppColors.lightBorder,
+                width: 0.75,
               ),
             ),
             child: Row(
@@ -558,16 +631,21 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                     children: [
                       Text(
                         '$selectedCount of ${_reviewItems.length} selected for commit',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                       Text(
                         'Total: KSh ${currencyFormat.format(selectedTotalCents / 100.0)}',
                         style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? Colors.grey[400] : Colors.grey[700],
+                          fontSize: 11.5,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                     ],
@@ -584,13 +662,16 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                       }
                     });
                   },
-                  child: Text(allSelected ? 'Deselect All' : 'Select All'),
+                  child: Text(
+                    allSelected ? 'Deselect All' : 'Select All',
+                    style: const TextStyle(fontSize: 12),
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // List of Batch Review Cards
           ..._reviewItems.asMap().entries.map((entry) {
@@ -627,28 +708,28 @@ class _SmsImportScreenState extends State<SmsImportScreen>
             child: FilledButton.icon(
               icon: _isCommitting
                   ? const SizedBox(
-                      width: 18,
-                      height: 18,
+                      width: 16,
+                      height: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: Colors.white,
                       ),
                     )
-                  : const Icon(Icons.check_circle_outline, size: 20),
+                  : const Icon(Icons.check, size: 18),
               label: Text(
                 _isCommitting
                     ? 'Writing to SQLite Ledger...'
-                    : 'Commit $selectedCount Transactions (KSh ${currencyFormat.format(selectedTotalCents / 100.0)})',
+                    : 'Commit $selectedCount Records (KSh ${currencyFormat.format(selectedTotalCents / 100.0)})',
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 16),
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               onPressed: (_isCommitting || selectedCount == 0)
@@ -743,10 +824,12 @@ class _SmsImportScreenState extends State<SmsImportScreen>
 
   // Opens interactive bottom modal sheet to select or change category
   void _showCategoryPickerModal(SmsBatchReviewItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (ctx) {
         final categories = widget.appState.categories;
@@ -755,25 +838,32 @@ class _SmsImportScreenState extends State<SmsImportScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'Select Category',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, size: 20),
+                      icon: const Icon(Icons.close, size: 18),
                       onPressed: () => Navigator.of(ctx).pop(),
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
+              Divider(
+                height: 1,
+                thickness: 0.75,
+                color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+              ),
               Expanded(
                 child: ListView.builder(
                   itemCount: categories.length,
@@ -782,10 +872,13 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                     final isCurrent = cat.id == item.categoryId;
 
                     return ListTile(
-                      leading: CircleAvatar(
-                        radius: 16,
-                        backgroundColor:
-                            Color(cat.colorValue).withValues(alpha: 0.2),
+                      leading: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: Color(cat.colorValue).withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
                         child: Icon(
                           _getCategoryIcon(cat.iconName),
                           size: 16,
@@ -795,16 +888,23 @@ class _SmsImportScreenState extends State<SmsImportScreen>
                       title: Text(
                         cat.name,
                         style: TextStyle(
+                          fontSize: 13.5,
                           fontWeight:
-                              isCurrent ? FontWeight.bold : FontWeight.normal,
-                          color: isCurrent ? AppColors.primary : null,
+                              isCurrent ? FontWeight.w600 : FontWeight.w400,
+                          color: isCurrent
+                              ? (isDark ? AppColors.sage : AppColors.primary)
+                              : (isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary),
                         ),
                       ),
                       trailing: isCurrent
-                          ? const Icon(
-                              Icons.check_circle_rounded,
-                              color: AppColors.primary,
-                              size: 20,
+                          ? Icon(
+                              Icons.check,
+                              color: isDark
+                                  ? AppColors.sage
+                                  : AppColors.primary,
+                              size: 18,
                             )
                           : null,
                       onTap: () {
@@ -866,16 +966,16 @@ class _SmsImportScreenState extends State<SmsImportScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.green[800],
+            backgroundColor: AppColors.primary,
             content: Text(
               'Successfully committed $count transactions to your ledger!',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             action: SnackBarAction(
               label: 'View',
               textColor: Colors.white,
               onPressed: () {
-                Navigator.of(context).pop(); // Back to main screen
+                Navigator.of(context).pop();
               },
             ),
           ),
@@ -886,7 +986,7 @@ class _SmsImportScreenState extends State<SmsImportScreen>
         setState(() => _isCommitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.red[800],
+            backgroundColor: AppColors.expense,
             content: Text('Failed to commit batch: $e'),
           ),
         );
@@ -897,11 +997,18 @@ class _SmsImportScreenState extends State<SmsImportScreen>
   // --- TAB 3: AUDIT LOG ---
 
   Widget _buildAuditTab(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (_auditHistory.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No SMS import history recorded yet.',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(
+            fontSize: 13,
+            color: isDark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
+          ),
         ),
       );
     }
@@ -909,38 +1016,60 @@ class _SmsImportScreenState extends State<SmsImportScreen>
     final dateFormat = DateFormat('MMM d, h:mm a');
 
     return ListView.separated(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       itemCount: _auditHistory.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
+      separatorBuilder: (_, __) => Divider(
+        height: 1,
+        thickness: 0.75,
+        color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+      ),
       itemBuilder: (context, index) {
         final item = _auditHistory[index];
         final isSuccess = item.status == SmsImportStatus.success;
         final isDup = item.status == SmsImportStatus.duplicate;
 
         return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           leading: Icon(
             isSuccess
                 ? Icons.check_circle_outline
                 : isDup
                     ? Icons.copy_outlined
                     : Icons.warning_amber_rounded,
+            size: 20,
             color: isSuccess
-                ? Colors.green
+                ? (isDark ? AppColors.sage : AppColors.primary)
                 : isDup
                     ? Colors.blueGrey
-                    : Colors.amber[800],
+                    : AppColors.warning,
           ),
           title: Text(
             item.status.displayName,
-            style: const TextStyle(fontWeight: FontWeight.w700),
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
+            ),
           ),
           subtitle: Text(
             'Ref: ${item.mpesaReference ?? "N/A"}${item.errorMessage != null ? " • ${item.errorMessage}" : ""}',
-            style: const TextStyle(fontSize: 12),
+            style: TextStyle(
+              fontSize: 11.5,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+            ),
           ),
           trailing: Text(
             dateFormat.format(item.importedAt),
-            style: const TextStyle(fontSize: 11, color: Colors.grey),
+            style: TextStyle(
+              fontSize: 11,
+              color: isDark
+                  ? AppColors.darkTextSecondary
+                  : AppColors.lightTextSecondary,
+            ),
           ),
         );
       },

@@ -31,16 +31,16 @@ class TransactionTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 11.0),
         child: Row(
           children: [
-            // Icon Badge
+            // Compact Leading Circular Badge
             _buildLeadingBadge(context),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
 
-            // Details
+            // Counterparty & Transaction Meta
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +53,8 @@ class TransactionTile extends StatelessWidget {
                               transaction.description ??
                               transaction.categoryName,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.5,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -65,35 +66,36 @@ class TransactionTile extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
-                            vertical: 2,
+                            vertical: 1.5,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.amber.withValues(alpha: 0.2),
+                            color: AppColors.warning.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Review',
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: isDark
-                                  ? Colors.amber[300]
-                                  : Colors.amber[800],
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.warning,
                             ),
                           ),
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Row(
                     children: [
                       Flexible(
                         child: Text(
                           transaction.transactionType.displayName,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -103,14 +105,20 @@ class TransactionTile extends StatelessWidget {
                       Text(
                         '•',
                         style: TextStyle(
-                          color: isDark ? Colors.grey[600] : Colors.grey[400],
+                          fontSize: 11,
+                          color: isDark
+                              ? AppColors.darkTextTertiary
+                              : AppColors.lightTextTertiary,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         timeFormat.format(transaction.timestamp),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: isDark ? Colors.grey[500] : Colors.grey[600],
+                          fontSize: 12,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                         ),
                       ),
                     ],
@@ -118,11 +126,11 @@ class TransactionTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
 
-            // Amount Column
+            // Tabular Monetary Amount Column
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 130),
+              constraints: const BoxConstraints(maxWidth: 140),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -131,8 +139,10 @@ class TransactionTile extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: Text(
                       amountString,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: TextStyle(
+                        fontFeatures: const [FontFeature.tabularFigures()],
                         fontWeight: FontWeight.w700,
+                        fontSize: 14.5,
                         color: amountColor,
                       ),
                     ),
@@ -146,38 +156,30 @@ class TransactionTile extends StatelessWidget {
                         'Fee: KSh ${currencyFormat.format(transaction.feeInShillings)}',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 11,
-                          color: isDark ? Colors.grey[500] : Colors.grey[600],
+                          color: isDark
+                              ? AppColors.darkTextTertiary
+                              : AppColors.lightTextTertiary,
                         ),
                       ),
                     ),
                   ],
-                if (transaction.balanceAfterCents != null) ...[
-                  const SizedBox(height: 3),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 6,
-                      vertical: 1.5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: (isDark ? Colors.white : Colors.black).withValues(
-                        alpha: 0.05,
-                      ),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
+                  if (transaction.balanceAfterCents != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
                       'Bal: KSh ${currencyFormat.format(transaction.balanceAfterCents! / 100.0)}',
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.grey[300] : Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkTextTertiary
+                            : AppColors.lightTextTertiary,
                       ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -219,13 +221,13 @@ class TransactionTile extends StatelessWidget {
     }
 
     return Container(
-      width: 42,
-      height: 42,
+      width: 34,
+      height: 34,
       decoration: BoxDecoration(
         color: iconColor.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
+        shape: BoxShape.circle,
       ),
-      child: Icon(iconData, color: iconColor, size: 22),
+      child: Icon(iconData, color: iconColor, size: 18),
     );
   }
 }

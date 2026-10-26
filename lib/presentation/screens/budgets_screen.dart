@@ -41,15 +41,7 @@ class BudgetsScreen extends StatelessWidget {
             title: const Text('Budgets & Limits'),
             actions: [
               IconButton(
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: (isDark ? Colors.white : Colors.black)
-                        .withValues(alpha: 0.05),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, size: 20),
-                ),
+                icon: const Icon(Icons.add, size: 22),
                 tooltip: 'Create Budget',
                 onPressed: () => _showAddBudgetDialog(context),
               ),
@@ -67,67 +59,60 @@ class BudgetsScreen extends StatelessWidget {
                 )
               : ListView(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0,
-                    vertical: 8.0,
+                    horizontal: 16.0,
+                    vertical: 12.0,
                   ),
                   children: [
-                    // Hero Budget Progress Card
+                    // Calm, Flat Total Monthly Budget Card
                     Container(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: AppColors.heroGradient,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(24),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : AppColors.lightSurface,
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.16),
-                          width: 1.0,
+                          color: isDark
+                              ? AppColors.darkSurfaceBorder
+                              : AppColors.lightBorder,
+                          width: 0.75,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryDark.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
                       ),
-                      padding: const EdgeInsets.all(22.0),
+                      padding: const EdgeInsets.all(18.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                'Total Monthly Budget',
+                              Text(
+                                'TOTAL ACTIVE BUDGETS',
                                 style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.6,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${(overallPercent * 100).toInt()}% Used',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              Text(
+                                '${(overallPercent * 100).toInt()}% Used',
+                                style: TextStyle(
+                                  color: overallPercent >= 1.0
+                                      ? AppColors.expense
+                                      : (isDark
+                                          ? AppColors.sage
+                                          : AppColors.primary),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  fontFeatures: const [
+                                    FontFeature.tabularFigures()
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             alignment: Alignment.centerLeft,
@@ -137,53 +122,76 @@ class BudgetsScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   'KSh ${currencyFormat.format(totalSpentCents / 100.0)}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -0.5,
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.4,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures()
+                                    ],
                                   ),
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '/ KSh ${currencyFormat.format(totalLimitCents / 100.0)}',
-                                  style: const TextStyle(
-                                    color: Colors.white70,
+                                  'of KSh ${currencyFormat.format(totalLimitCents / 100.0)}',
+                                  style: TextStyle(
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures()
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 12),
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(2),
                             child: LinearProgressIndicator(
                               value: overallPercent,
-                              minHeight: 8,
-                              backgroundColor:
-                                  Colors.white.withValues(alpha: 0.2),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                              minHeight: 4,
+                              backgroundColor: (isDark
+                                      ? Colors.white
+                                      : Colors.black)
+                                  .withValues(alpha: 0.06),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                overallPercent >= 1.0
+                                    ? AppColors.expense
+                                    : (isDark
+                                        ? AppColors.sage
+                                        : AppColors.primary),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           Text(
                             overallRemainingInShillings >= 0
-                                ? 'KSh ${currencyFormat.format(overallRemainingInShillings)} remaining this month'
+                                ? 'KSh ${currencyFormat.format(overallRemainingInShillings)} remaining'
                                 : 'Exceeded by KSh ${currencyFormat.format(-overallRemainingInShillings)}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
+                            style: TextStyle(
+                              color: overallRemainingInShillings >= 0
+                                  ? (isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary)
+                                  : AppColors.expense,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures()
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // Category Budgets Header
                     Row(
@@ -191,25 +199,31 @@ class BudgetsScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Category Limits (${statuses.length})',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
+                          style: TextStyle(
+                            fontSize: 14.5,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                         Text(
-                          'Swipe to delete',
+                          'Swipe to remove',
                           style: TextStyle(
                             fontSize: 11.5,
-                            color: isDark ? Colors.grey[500] : Colors.grey[400],
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
 
                     // Individual Budget Cards
                     ...statuses.map((status) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12.0),
+                        padding: const EdgeInsets.only(bottom: 8.0),
                         child: Dismissible(
                           key: Key(status.budget.id),
                           direction: DismissDirection.endToStart,
@@ -218,11 +232,12 @@ class BudgetsScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(right: 20),
                             decoration: BoxDecoration(
                               color: AppColors.expense,
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
                               Icons.delete_outline,
                               color: Colors.white,
+                              size: 20,
                             ),
                           ),
                           onDismissed: (_) {
@@ -245,11 +260,11 @@ class BudgetsScreen extends StatelessWidget {
             heroTag: 'fab_budgets',
             backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
-            elevation: 3,
-            icon: const Icon(Icons.add),
+            elevation: 1,
+            icon: const Icon(Icons.add, size: 20),
             label: const Text(
               'New Limit',
-              style: TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
             onPressed: () => _showAddBudgetDialog(context),
           ),
@@ -268,24 +283,32 @@ class BudgetsScreen extends StatelessWidget {
   }
 
   void _showBudgetOptions(BuildContext context, BudgetStatus status) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
+      backgroundColor: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
       builder: (ctx) {
         return SafeArea(
-          child: Wrap(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.delete, color: AppColors.expense),
-                title: const Text(
-                  'Delete Budget',
-                  style: TextStyle(color: AppColors.expense),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.delete_outline, color: AppColors.expense),
+                  title: const Text(
+                    'Delete Budget',
+                    style: TextStyle(color: AppColors.expense, fontWeight: FontWeight.w500),
+                  ),
+                  onTap: () {
+                    appState.deleteBudget(status.budget.id);
+                    Navigator.of(ctx).pop();
+                  },
                 ),
-                onTap: () {
-                  appState.deleteBudget(status.budget.id);
-                  Navigator.of(ctx).pop();
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -322,7 +345,13 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.darkSurfaceBorder : AppColors.lightBorder,
+            width: 0.75,
+          ),
+        ),
       ),
       padding: EdgeInsets.fromLTRB(
         20,
@@ -334,10 +363,26 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: (isDark ? Colors.white : Colors.black)
+                    .withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Text(
             'Create Spending Limit',
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: TextStyle(
+              fontSize: 16,
               fontWeight: FontWeight.w700,
+              color: isDark
+                  ? AppColors.darkTextPrimary
+                  : AppColors.lightTextPrimary,
             ),
           ),
           const SizedBox(height: 16),
@@ -346,14 +391,18 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
           TextField(
             controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              fontFeatures: [FontFeature.tabularFigures()],
+            ),
             decoration: const InputDecoration(
               labelText: 'Limit Amount (KSh)',
               prefixText: 'KSh ',
               hintText: '10,000',
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
           // Period Selector
           DropdownButtonFormField<BudgetPeriod>(
@@ -366,7 +415,7 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
               if (val != null) setState(() => _selectedPeriod = val);
             },
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
 
           // Scope: Overall or Specific Category
           DropdownButtonFormField<String?>(
@@ -391,11 +440,25 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
             children: [
               Text(
                 'Alert Threshold',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
-              Text('${(_warningThreshold * 100).toInt()}% of budget'),
+              Text(
+                '${(_warningThreshold * 100).toInt()}% of budget',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
             ],
           ),
           Slider(
@@ -406,7 +469,7 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
             activeColor: AppColors.primary,
             onChanged: (val) => setState(() => _warningThreshold = val),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
 
           // Submit
           SizedBox(
@@ -417,12 +480,12 @@ class _AddBudgetBottomSheetState extends State<_AddBudgetBottomSheet> {
                 backgroundColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
               child: const Text(
                 'Set Budget',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
               ),
             ),
           ),

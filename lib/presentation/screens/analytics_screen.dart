@@ -34,7 +34,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             body: const EmptyStateView(
               icon: Icons.bar_chart_rounded,
               title: 'No Analytics Available',
-              message: 'Analytics and spending trends will appear once transactions are recorded.',
+              message:
+                  'Analytics and spending trends will appear once transactions are recorded.',
             ),
           );
         }
@@ -59,279 +60,405 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         );
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Analytics & Trends')),
+          appBar: AppBar(title: const Text('Analytics')),
           body: ListView(
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
-              vertical: 8.0,
+              vertical: 12.0,
             ),
             children: [
-              // Period Selector Segmented Tabs (Zero Overflow)
+              // Period Selector Segmented Tabs
               Container(
                 decoration: BoxDecoration(
                   color: (isDark ? Colors.white : Colors.black)
                       .withValues(alpha: 0.04),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurfaceBorder
+                        : AppColors.lightBorder,
+                    width: 0.75,
+                  ),
                 ),
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(3),
                 child: Row(
                   children: [
-                    _buildRangeSegment(7, 'Last 7 Days', isDark),
-                    _buildRangeSegment(30, 'Last 30 Days', isDark),
-                    _buildRangeSegment(90, 'Last 90 Days', isDark),
+                    _buildRangeSegment(7, '7 Days', isDark),
+                    _buildRangeSegment(30, '30 Days', isDark),
+                    _buildRangeSegment(90, '90 Days', isDark),
                   ],
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Overview Card
-              Card(
-                child: Padding(
+              // Overview Metrics Card
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurfaceBorder
+                        : AppColors.lightBorder,
+                    width: 0.75,
+                  ),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'PERIOD CASH FLOW',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        _buildMetric(
+                          context,
+                          'Money Out',
+                          'KSh ${currencyFormat.format(summary.totalOutgoingInShillings)}',
+                          AppColors.expense,
+                          isDark,
+                        ),
+                        Container(
+                          width: 0.75,
+                          height: 36,
+                          color: isDark
+                              ? AppColors.darkDivider
+                              : AppColors.lightDivider,
+                        ),
+                        _buildMetric(
+                          context,
+                          'Money In',
+                          'KSh ${currencyFormat.format(summary.incomeInShillings)}',
+                          isDark ? AppColors.sage : AppColors.primary,
+                          isDark,
+                        ),
+                        Container(
+                          width: 0.75,
+                          height: 36,
+                          color: isDark
+                              ? AppColors.darkDivider
+                              : AppColors.lightDivider,
+                        ),
+                        _buildMetric(
+                          context,
+                          'M-Pesa Fees',
+                          'KSh ${currencyFormat.format(summary.feesInShillings)}',
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                          isDark,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Daily Spending Trend Chart
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurfaceBorder
+                        : AppColors.lightBorder,
+                    width: 0.75,
+                  ),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Daily Outflows',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
+                          ),
+                        ),
+                        Text(
+                          'KSh / Day',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 120,
+                      child: RepaintBoundary(
+                        child: _DailySpendingBarChart(dailyData: dailySpending),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Category Breakdown Card
+              Container(
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightSurface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isDark
+                        ? AppColors.darkSurfaceBorder
+                        : AppColors.lightBorder,
+                    width: 0.75,
+                  ),
+                ),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Spending by Category',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    if (categoryBreakdown.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        child: Center(
+                          child: Text(
+                            'No expenses recorded in this period',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      ...categoryBreakdown.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final cat = entry.value;
+                        final percent = (cat.percentageOfTotal * 100)
+                            .toStringAsFixed(0);
+                        final catColor =
+                            _getCategoryColor(cat.categoryId, index);
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Container(
+                                        width: 7,
+                                        height: 7,
+                                        decoration: BoxDecoration(
+                                          color: catColor,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        cat.categoryName,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 13,
+                                          color: isDark
+                                              ? AppColors.darkTextPrimary
+                                              : AppColors.lightTextPrimary,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'KSh ${currencyFormat.format(cat.amountInShillings)}   $percent%',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: isDark
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.lightTextPrimary,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures()
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(2),
+                                child: LinearProgressIndicator(
+                                  value: cat.percentageOfTotal,
+                                  minHeight: 4,
+                                  backgroundColor: (isDark
+                                          ? Colors.white
+                                          : Colors.black)
+                                      .withValues(alpha: 0.05),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    catColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Top Counterparties Card
+              if (topMerchants.isNotEmpty) ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: isDark
+                        ? AppColors.darkSurface
+                        : AppColors.lightSurface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark
+                          ? AppColors.darkSurfaceBorder
+                          : AppColors.lightBorder,
+                      width: 0.75,
+                    ),
+                  ),
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total Spending Overview',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                        'Top Recipients & Merchants',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildMetric(
-                            context,
-                            'Total Outflows',
-                            'KSh ${currencyFormat.format(summary.totalOutgoingInShillings)}',
-                            AppColors.expense,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildMetric(
-                            context,
-                            'Income Received',
-                            'KSh ${currencyFormat.format(summary.incomeInShillings)}',
-                            AppColors.income,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildMetric(
-                            context,
-                            'Tariff Fees',
-                            'KSh ${currencyFormat.format(summary.feesInShillings)}',
-                            isDark ? AppColors.darkTextSecondary : AppColors.neutral,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
+                      ...topMerchants.asMap().entries.map((entry) {
+                        final idx = entry.key;
+                        final m = entry.value;
+                        final isLast = idx == topMerchants.length - 1;
 
-              // Daily Spending Trend Chart (Custom Canvas Bar Visualization)
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Daily Spending Trend',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'KSh / Day',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 140,
-                        child: RepaintBoundary(
-                          child: _DailySpendingBarChart(dailyData: dailySpending),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Category Breakdown
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Category Distribution',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      if (categoryBreakdown.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: Center(
-                            child: Text('No expenses recorded in this period'),
-                          ),
-                        )
-                      else
-                        ...categoryBreakdown.asMap().entries.map((entry) {
-                          final index = entry.key;
-                          final cat = entry.value;
-                          final percent = (cat.percentageOfTotal * 100)
-                              .toStringAsFixed(1);
-                          final catColor = _getCategoryColor(cat.categoryId, index);
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 14.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: catColor,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          cat.categoryName,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
+                        return Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: (isDark
+                                              ? Colors.white
+                                              : Colors.black)
+                                          .withValues(alpha: 0.05),
+                                      shape: BoxShape.circle,
                                     ),
-                                    const SizedBox(width: 8),
-                                    FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      alignment: Alignment.centerRight,
+                                    child: Center(
                                       child: Text(
-                                        'KSh ${currencyFormat.format(cat.amountInShillings)} ($percent%)',
-                                        style: const TextStyle(
+                                        m.merchantName.isNotEmpty
+                                            ? m.merchantName[0].toUpperCase()
+                                            : 'M',
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? AppColors.darkTextPrimary
+                                              : AppColors.lightTextPrimary,
                                           fontWeight: FontWeight.w700,
                                           fontSize: 13,
                                         ),
                                       ),
                                     ),
-                                  ],
-                                ),
-                                const SizedBox(height: 6),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: LinearProgressIndicator(
-                                    value: cat.percentageOfTotal,
-                                    minHeight: 7,
-                                    backgroundColor: (isDark
-                                            ? Colors.white
-                                            : Colors.black)
-                                        .withValues(alpha: 0.06),
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      catColor,
-                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Top Merchants
-              if (topMerchants.isNotEmpty) ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Top Spending Counterparties',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        ...topMerchants.map((m) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 34,
-                                  height: 34,
-                                  decoration: BoxDecoration(
-                                    color: (isDark
-                                            ? AppColors.sage
-                                            : AppColors.primary)
-                                        .withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
+                                  const SizedBox(width: 12),
+                                  Expanded(
                                     child: Text(
-                                      m.merchantName.isNotEmpty
-                                          ? m.merchantName[0].toUpperCase()
-                                          : 'M',
+                                      m.merchantName,
                                       style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13.5,
                                         color: isDark
-                                            ? AppColors.sage
-                                            : AppColors.primary,
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 14,
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    m.merchantName,
-                                    style: const TextStyle(
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'KSh ${currencyFormat.format(m.totalInShillings)}',
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w600,
+                                      fontSize: 13.5,
+                                      color: isDark
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.lightTextPrimary,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures()
+                                      ],
                                     ),
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'KSh ${currencyFormat.format(m.totalInShillings)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          );
-                        }),
-                      ],
-                    ),
+                            if (!isLast)
+                              Divider(
+                                height: 1,
+                                thickness: 0.75,
+                                color: isDark
+                                    ? AppColors.darkDivider
+                                    : AppColors.lightDivider,
+                              ),
+                          ],
+                        );
+                      }),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -354,41 +481,37 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           });
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 9),
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? (isDark ? AppColors.darkSurfaceHighlight : AppColors.lightSurface)
+                ? (isDark
+                    ? AppColors.darkSurfaceHighlight
+                    : AppColors.lightSurface)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
             border: isSelected
                 ? Border.all(
-                    color: isDark ? AppColors.darkSurfaceBorder : AppColors.lightBorder,
-                    width: 1,
+                    color: isDark
+                        ? AppColors.darkSurfaceBorder
+                        : AppColors.lightBorder,
+                    width: 0.75,
                   )
-                : Border.all(color: Colors.transparent, width: 1),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                : null,
+                : Border.all(color: Colors.transparent, width: 0.75),
           ),
           child: Center(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected
-                      ? (isDark ? AppColors.darkTextPrimary : AppColors.primary)
-                      : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
-                ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                color: isSelected
+                    ? (isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary)
+                    : (isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary),
               ),
             ),
           ),
@@ -402,33 +525,43 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     String title,
     String amount,
     Color color,
+    bool isDark,
   ) {
     return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.grey[600],
-                ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              amount,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
               style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                amount,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  letterSpacing: -0.2,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -497,7 +630,7 @@ class _DailySpendingBarChart extends StatelessWidget {
                                   ? AppColors.darkSurfaceBorder
                                   : const Color(0xFFE2E8F0)),
                           borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(3),
+                            top: Radius.circular(2),
                           ),
                         ),
                       ),
@@ -510,8 +643,8 @@ class _DailySpendingBarChart extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Container(
-          height: 1,
-          color: isDark ? AppColors.darkSurfaceBorder : AppColors.lightBorder,
+          height: 0.75,
+          color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
         ),
       ],
     );

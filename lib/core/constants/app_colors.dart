@@ -21,25 +21,25 @@ class AppColors {
     Color(0xFF133627),
   ];
 
-  // Financial Semantics
-  static const Color income = Color(0xFF2D6A4F); // Deep Forest Green for Income
-  static const Color incomeLight = Color(0xFF52B788); // Muted Sage
+  // Financial Semantics - Restrained & Accurate
+  static const Color income = Color(0xFF2D6A4F); // Restrained Deep Forest Green
+  static const Color incomeLight = Color(0xFF40916C); // Calm Green
   static const Color incomeSurface = Color(0xFFEBF5EE);
 
-  static const Color expense = Color(0xFFC53030); // Clear restrained Terracotta/Crimson
+  static const Color expense = Color(0xFFB91C1C); // Restrained Terracotta / Crimson
   static const Color expenseLight = Color(0xFFE56B6F);
   static const Color expenseSurface = Color(0xFFFDF2F2);
 
-  static const Color transfer = Color(0xFF2B6CB0); // Dignified Slate Blue
-  static const Color transferLight = Color(0xFF63B3ED);
-  static const Color transferSurface = Color(0xFFEBF4FA);
+  static const Color transfer = Color(0xFF3B82F6); // Neutral Slate Blue
+  static const Color transferLight = Color(0xFF60A5FA);
+  static const Color transferSurface = Color(0xFFEFF6FF);
 
   static const Color withdrawal = Color(0xFFD97706); // Restrained Amber Gold
   static const Color withdrawalLight = Color(0xFFFBBF24);
   static const Color withdrawalSurface = Color(0xFFFEF7EC);
 
   static const Color warning = Color(0xFFD97706);
-  static const Color neutral = Color(0xFF6C757D);
+  static const Color neutral = Color(0xFF6B7280);
   static const Color adjustment = Color(0xFF0D9488);
   static const Color unclassified = Color(0xFF6B7280);
 
@@ -55,29 +55,31 @@ class AppColors {
     Color(0xFF4A5568), // Charcoal Slate
   ];
 
-  // Neutral surfaces - Light Theme (Warm Ivory Ground)
-  static const Color lightBackground = Color(0xFFFBFBEE); // Warm Ivory
+  // Surfaces - Light Theme (Warm off-white ground)
+  static const Color lightBackground = Color(0xFFF7F8F5); // Warm clean off-white
   static const Color lightSurface = Color(0xFFFFFFFF); // Pure White Surface
-  static const Color lightSurfaceVariant = Color(0xFFF3F5EC); // Warm Tinted Container
-  static const Color lightBorder = Color(0xFFE3E6DC); // Quiet 1px Border
-  static const Color lightTextPrimary = Color(0xFF1A201C); // Soft Deep Charcoal
-  static const Color lightTextSecondary = Color(0xFF5A665E); // Warm Readable Gray
-  static const Color lightTextTertiary = Color(0xFF8A958E); // Muted Caption Gray
+  static const Color lightSurfaceVariant = Color(0xFFEFF1EC); // Subtle tonal separation
+  static const Color lightBorder = Color(0xFFE2E5DC); // Quiet 0.75-1px Border
+  static const Color lightDivider = Color(0xFFEAEDE4); // Hairline divider
+  static const Color lightTextPrimary = Color(0xFF141A17); // High-contrast charcoal
+  static const Color lightTextSecondary = Color(0xFF6B7570); // Readable muted grey
+  static const Color lightTextTertiary = Color(0xFF949E99); // Subtle Caption
 
-  // Neutral surfaces - Dark Theme (Deep Charcoal Ground with Forest Undertone)
-  static const Color darkBackground = Color(0xFF0F1411); // Deep Charcoal Forest
-  static const Color darkSurface = Color(0xFF171F1B); // Dark Slate Forest
-  static const Color darkSurfaceVariant = Color(0xFF212C26); // Card Surface
-  static const Color darkBorder = Color(0xFF2C3A32); // Quiet Dark Border
-  static const Color darkTextPrimary = Color(0xFFF2F5F3); // Crisp Clear Primary
-  static const Color darkTextSecondary = Color(0xFF9AA8A0); // Muted Sage Gray
-  static const Color darkTextTertiary = Color(0xFF6B7A72); // Subtle Gray
+  // Surfaces - Dark Theme (Near-black ground with subtle forest undertone)
+  static const Color darkBackground = Color(0xFF0C100E); // Near-black forest undertone
+  static const Color darkSurface = Color(0xFF141916); // Clean dark card surface
+  static const Color darkSurfaceVariant = Color(0xFF1B221E); // Layered surface
+  static const Color darkBorder = Color(0xFF242C27); // Quiet Dark Border
+  static const Color darkDivider = Color(0xFF1C2420); // Hairline divider
+  static const Color darkTextPrimary = Color(0xFFF0F4F2); // Near-white
+  static const Color darkTextSecondary = Color(0xFF8B9791); // Muted readable grey
+  static const Color darkTextTertiary = Color(0xFF5F6B65); // Subtle Gray
 
-  // Subtle Aura / Highlight Accents
-  static const Color darkCardHighlight = Color(0xFF25332C);
-  static const Color darkSurfaceHighlight = Color(0xFF25332C);
-  static const Color darkSurfaceBorder = Color(0xFF2C3A32);
-  static const Color brandAuraGlow = Color(0x261E4D38);
-  static const Color incomeGlow = Color(0x242D6A4F);
-  static const Color expenseGlow = Color(0x24C53030);
+  // Backward compatibility aliases
+  static const Color darkCardHighlight = Color(0xFF212C26);
+  static const Color darkSurfaceHighlight = Color(0xFF1B221E);
+  static const Color darkSurfaceBorder = Color(0xFF242C27);
+  static const Color brandAuraGlow = Color(0x1F1E4D38);
+  static const Color incomeGlow = Color(0x1F2D6A4F);
+  static const Color expenseGlow = Color(0x1FB91C1C);
 }

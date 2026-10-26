@@ -27,207 +27,370 @@ class SettingsScreen extends StatelessWidget {
               vertical: 12.0,
             ),
             children: [
-              // Profile Section
-              _buildSectionHeader(context, 'Personal Profile'),
-              Card(
-                child: ListTile(
-                  leading: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: ProfileAvatarHelper.getConfig(
-                          appState.avatarIndex,
-                        ).gradient,
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
+              // Personal Profile Section
+              _buildSectionHeader(context, 'PERSONAL PROFILE'),
+              _buildGroupedCard(
+                isDark: isDark,
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 4.0,
                     ),
-                    child: Center(
-                      child: Text(
-                        appState.userName.isNotEmpty
-                            ? appState.userName[0].toUpperCase()
-                            : 'K',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 18,
+                    leading: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: (isDark ? AppColors.sage : AppColors.primary)
+                            .withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          appState.userName.isNotEmpty
+                              ? appState.userName[0].toUpperCase()
+                              : 'K',
+                          style: TextStyle(
+                            color: isDark
+                                ? AppColors.sage
+                                : AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
                         ),
                       ),
                     ),
+                    title: Text(
+                      appState.userName,
+                      style: TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Tap to change nickname or avatar',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) =>
+                            ProfileEditBottomSheet(appState: appState),
+                      );
+                    },
                   ),
-                  title: Text(
-                    appState.userName,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  subtitle: const Text('Tap to change nickname or avatar'),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (_) =>
-                          ProfileEditBottomSheet(appState: appState),
-                    );
-                  },
-                ),
+                ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Appearance Section
-              _buildSectionHeader(context, 'Appearance'),
-              Card(
-                child: RadioGroup<ThemeMode>(
-                  groupValue: appState.themeMode,
-                  onChanged: (mode) {
-                    if (mode != null) appState.setThemeMode(mode);
-                  },
-                  child: const Column(
-                    children: [
-                      RadioListTile<ThemeMode>(
-                        title: Text('System Default'),
-                        subtitle: Text('Follow Android device appearance'),
-                        value: ThemeMode.system,
-                      ),
-                      Divider(height: 1),
-                      RadioListTile<ThemeMode>(
-                        title: Text('Warm Ivory (Light Theme)'),
-                        subtitle: Text('Natural, calm daytime appearance'),
-                        value: ThemeMode.light,
-                      ),
-                      Divider(height: 1),
-                      RadioListTile<ThemeMode>(
-                        title: Text('Deep Charcoal (Dark Theme)'),
-                        subtitle: Text('Restful forest-slate night appearance'),
-                        value: ThemeMode.dark,
-                      ),
-                    ],
+              _buildSectionHeader(context, 'APPEARANCE'),
+              _buildGroupedCard(
+                isDark: isDark,
+                children: [
+                  _buildThemeOption(
+                    context: context,
+                    title: 'System Default',
+                    subtitle: 'Follow device system appearance',
+                    mode: ThemeMode.system,
+                    isDark: isDark,
                   ),
-                ),
+                  _buildDivider(isDark),
+                  _buildThemeOption(
+                    context: context,
+                    title: 'Warm Ivory (Light)',
+                    subtitle: 'Off-white background with forest accents',
+                    mode: ThemeMode.light,
+                    isDark: isDark,
+                  ),
+                  _buildDivider(isDark),
+                  _buildThemeOption(
+                    context: context,
+                    title: 'Deep Forest (Dark)',
+                    subtitle: 'Near-black ground with quiet sage tones',
+                    mode: ThemeMode.dark,
+                    isDark: isDark,
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Data Export & Backup Section
-              _buildSectionHeader(context, 'Data & Backup'),
-              Card(
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        Icons.table_chart_outlined,
-                        color: isDark ? AppColors.sage : AppColors.primary,
-                      ),
-                      title: const Text('Export to CSV'),
-                      subtitle: const Text(
-                        'Generate formatted CSV of all transactions',
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => _handleCsvExport(context),
+              // Data & Backup Section
+              _buildSectionHeader(context, 'DATA & BACKUP'),
+              _buildGroupedCard(
+                isDark: isDark,
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 2.0,
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: Icon(
-                        Icons.backup_outlined,
-                        color: isDark ? AppColors.sage : AppColors.primary,
-                      ),
-                      title: const Text('Create JSON Backup'),
-                      subtitle: const Text(
-                        'Full snapshot of transactions and budgets',
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => _handleCreateBackup(context),
+                    leading: Icon(
+                      Icons.table_chart_outlined,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: Icon(
-                        Icons.restore_outlined,
-                        color: isDark ? AppColors.sage : AppColors.primary,
+                    title: Text(
+                      'Export to CSV',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
-                      title: const Text('Restore from Backup'),
-                      subtitle: const Text('Import verified JSON backup file'),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => _handleRestoreBackup(context),
                     ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: Icon(
-                        Icons.data_exploration_outlined,
-                        color: isDark ? AppColors.sage : AppColors.primary,
+                    subtitle: Text(
+                      'Copy formatted CSV of all transactions',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
-                      title: const Text('Seed Sample Transactions'),
-                      subtitle: const Text(
-                        'Populate 10 realistic M-Pesa transactions for demo',
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                      onTap: () => _handleSeedSampleData(context),
                     ),
-                  ],
-                ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                    onTap: () => _handleCsvExport(context),
+                  ),
+                  _buildDivider(isDark),
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 2.0,
+                    ),
+                    leading: Icon(
+                      Icons.backup_outlined,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                    title: Text(
+                      'Create JSON Backup',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Full snapshot of records and budgets',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                    onTap: () => _handleCreateBackup(context),
+                  ),
+                  _buildDivider(isDark),
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 2.0,
+                    ),
+                    leading: Icon(
+                      Icons.restore_outlined,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                    title: Text(
+                      'Restore from Backup',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Import a verified JSON backup string',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                    onTap: () => _handleRestoreBackup(context),
+                  ),
+                  _buildDivider(isDark),
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 2.0,
+                    ),
+                    leading: Icon(
+                      Icons.data_exploration_outlined,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                    title: Text(
+                      'Seed Sample Data',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Populate 10 realistic demo transactions',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                    onTap: () => _handleSeedSampleData(context),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // Privacy & Security Section
-              _buildSectionHeader(context, 'Privacy & Security'),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.shield_outlined,
-                            color: isDark ? AppColors.sage : AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Strict On-Device Privacy',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
+              _buildSectionHeader(context, 'PRIVACY & SECURITY'),
+              _buildGroupedCard(
+                isDark: isDark,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              size: 16,
+                              color: isDark
+                                  ? AppColors.sage
+                                  : AppColors.primary,
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '• All financial transactions and SMS receipts are stored in application-private SQLite storage.\n'
-                        '• GanjiPal does not transmit your financial data to any cloud service, external AI, or telemetry platform.\n'
-                        '• Deduplication is performed deterministically using local SHA-256 hashing.',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          height: 1.5,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            const SizedBox(width: 8),
+                            Text(
+                              'Strict On-Device Storage',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Danger Zone
-              _buildSectionHeader(context, 'Danger Zone'),
-              Card(
-                child: ListTile(
-                  leading: const Icon(
-                    Icons.delete_forever,
-                    color: AppColors.expense,
-                  ),
-                  title: const Text(
-                    'Clear All Financial Records',
-                    style: TextStyle(
-                      color: AppColors.expense,
-                      fontWeight: FontWeight.bold,
+                        const SizedBox(height: 8),
+                        Text(
+                          '• All financial transactions and SMS receipts remain strictly inside local SQLite storage on this phone.\n'
+                          '• GanjiPal does not send data to any cloud service, external AI, analytics, or third-party server.\n'
+                          '• SMS deduplication is calculated deterministically with local SHA-256 hashes.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.5,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  subtitle: const Text(
-                    'Permanently deletes all transactions, budgets, and logs',
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Danger Zone
+              _buildSectionHeader(context, 'DANGER ZONE'),
+              _buildGroupedCard(
+                isDark: isDark,
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 2.0,
+                    ),
+                    leading: const Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: AppColors.expense,
+                    ),
+                    title: const Text(
+                      'Clear All Financial Records',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.expense,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Permanently erase all transactions, budgets, and logs',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
+                      ),
+                    ),
+                    onTap: () => _confirmClearAllData(context),
                   ),
-                  onTap: () => _confirmClearAllData(context),
-                ),
+                ],
               ),
               const SizedBox(height: 32),
             ],
@@ -243,10 +406,95 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.only(left: 4.0, bottom: 8.0),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.sage : AppColors.primary,
+        style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.6,
+          color: isDark
+              ? AppColors.darkTextSecondary
+              : AppColors.lightTextSecondary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroupedCard({
+    required bool isDark,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? AppColors.darkSurfaceBorder : AppColors.lightBorder,
+          width: 0.75,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildDivider(bool isDark) {
+    return Divider(
+      height: 1,
+      thickness: 0.75,
+      color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
+    );
+  }
+
+  Widget _buildThemeOption({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required ThemeMode mode,
+    required bool isDark,
+  }) {
+    final isSelected = appState.themeMode == mode;
+    return InkWell(
+      onTap: () => appState.setThemeMode(mode),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
+                    ),
+                  ),
+                ],
+              ),
             ),
+            if (isSelected)
+              Icon(
+                Icons.check,
+                size: 18,
+                color: isDark ? AppColors.sage : AppColors.primary,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -406,4 +654,3 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 }
-

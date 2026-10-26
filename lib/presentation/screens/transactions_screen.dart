@@ -63,28 +63,28 @@ class TransactionsScreen extends StatelessWidget {
             children: [
               // Search Input Field
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 10),
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Search merchant, phone, reference...',
                     hintStyle: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? Colors.grey[500] : Colors.grey[400],
+                      fontSize: 13.5,
+                      color: isDark ? AppColors.darkTextTertiary : AppColors.lightTextTertiary,
                     ),
                     prefixIcon: Icon(
                       Icons.search_rounded,
-                      size: 20,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      size: 19,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                     ),
                     suffixIcon: appState.searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const Icon(Icons.clear, size: 16),
                             onPressed: () => appState.setSearchQuery(''),
                           )
                         : null,
                     contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+                      horizontal: 14,
+                      vertical: 10,
                     ),
                   ),
                   onChanged: (val) => appState.setSearchQuery(val),
@@ -93,14 +93,14 @@ class TransactionsScreen extends StatelessWidget {
 
               // Segmented Filter Pills: All | Expense | Income | Transfers
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: (isDark ? Colors.white : Colors.black)
                         .withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(3),
                   child: Row(
                     children: [
                       _buildQuickPill(
@@ -140,83 +140,59 @@ class TransactionsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
 
               // Current Balance Ledger Banner
               if (latestWithBalance != null)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0,
-                      vertical: 12.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(
-                        alpha: isDark ? 0.15 : 0.08,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14.0,
+                        vertical: 10.0,
                       ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(
-                              alpha: isDark ? 0.25 : 0.15,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet_outlined,
+                            size: 16,
+                            color: isDark ? AppColors.sage : AppColors.primary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Latest M-Pesa Balance:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
-                            shape: BoxShape.circle,
                           ),
-                          child: const Icon(
-                            Icons.account_balance_wallet_rounded,
-                            size: 18,
-                            color: AppColors.primary,
+                          const SizedBox(width: 6),
+                          Text(
+                            'KSh ${currencyFormat.format(latestWithBalance.balanceAfterCents! / 100.0)}',
+                            style: TextStyle(
+                              fontFeatures: const [FontFeature.tabularFigures()],
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13.5,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Latest M-Pesa Balance',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: isDark
-                                      ? Colors.grey[400]
-                                      : Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'KSh ${currencyFormat.format(latestWithBalance.balanceAfterCents! / 100.0)}',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    color: isDark
-                                        ? AppColors.primaryLight
-                                        : AppColors.primary,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          const Spacer(),
+                          Text(
+                            DateFormat('MMM d').format(latestWithBalance.timestamp),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark
+                                  ? AppColors.darkTextTertiary
+                                  : AppColors.lightTextTertiary,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          DateFormat('MMM d, h:mm a').format(
-                            latestWithBalance.timestamp,
-                          ),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 11,
-                            color: isDark ? Colors.grey[500] : Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -268,7 +244,7 @@ class TransactionsScreen extends StatelessWidget {
                               },
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 80),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 80),
                         itemCount: groupedTxs.length,
                         itemBuilder: (context, groupIndex) {
                           final dateHeader =
@@ -280,8 +256,8 @@ class TransactionsScreen extends StatelessWidget {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 4.0,
+                                  vertical: 8.0,
+                                  horizontal: 2.0,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -289,21 +265,21 @@ class TransactionsScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       dateHeader,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w700,
-                                            color: isDark
-                                                ? Colors.grey[300]
-                                                : Colors.grey[700],
-                                          ),
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12.5,
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
+                                      ),
                                     ),
                                     Text(
                                       '${txList.length} txs',
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11.5,
                                         color: isDark
-                                            ? Colors.grey[500]
-                                            : Colors.grey[500],
+                                            ? AppColors.darkTextTertiary
+                                            : AppColors.lightTextTertiary,
                                       ),
                                     ),
                                   ],
@@ -314,9 +290,10 @@ class TransactionsScreen extends StatelessWidget {
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
                                   itemCount: txList.length,
-                                  separatorBuilder: (_, __) => const Divider(
+                                  separatorBuilder: (_, __) => Divider(
                                     height: 1,
-                                    indent: 70,
+                                    thickness: 0.75,
+                                    color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
                                   ),
                                   itemBuilder: (context, index) {
                                     final tx = txList[index];
@@ -378,17 +355,17 @@ class TransactionsScreen extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          duration: const Duration(milliseconds: 160),
+          padding: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: isSelected
                 ? (isDark ? AppColors.darkSurfaceVariant : Colors.white)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(6),
             border: isSelected
                 ? Border.all(
                     color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                    width: 1.0,
+                    width: 0.75,
                   )
                 : null,
             boxShadow: isSelected
@@ -396,7 +373,7 @@ class TransactionsScreen extends StatelessWidget {
                     BoxShadow(
                       color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
                       blurRadius: 4,
-                      offset: const Offset(0, 2),
+                      offset: const Offset(0, 1),
                     ),
                   ]
                 : null,
@@ -408,10 +385,10 @@ class TransactionsScreen extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   color: isSelected
-                      ? (isDark ? AppColors.sage : AppColors.primary)
-                      : (isDark ? Colors.grey[400] : Colors.grey[600]),
+                      ? (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary)
+                      : (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary),
                 ),
               ),
             ),
